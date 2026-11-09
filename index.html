@@ -56,6 +56,9 @@ h1,h2,h3,p{margin:0}
 .cab img{width:42px;height:42px;border-radius:12px;object-fit:cover;box-shadow:var(--sombra)}
 .cab .tit{flex:1;font-family:var(--serif);font-size:22px;font-weight:600;letter-spacing:-.01em}
 .cab .tit em{font-style:italic;font-weight:400;color:var(--verde)}
+:root[data-modo="real"] :is([data-a="estado"],[data-a="cobrar"],[data-a="anular"],[data-a="aj"],[data-a="guardar-prod"],[data-a="nuevo-prod"],[data-a="color-add"],[data-a="nueva-compra"],[data-a="reiniciar"],.solo-prueba){display:none !important}
+.pill-prueba.real{color:var(--verde-tinta);background:var(--verde-fondo)}
+.nota{font-size:13px;color:var(--suave);background:var(--oro-fondo);border-radius:14px;padding:10px 12px}
 .pill-prueba{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--rojo-tinta);background:var(--rojo-fondo);border-radius:999px;padding:5px 10px;white-space:nowrap}
 .atras{width:44px;height:44px;margin-left:-8px;display:flex;align-items:center;justify-content:center;background:none;border:0;color:var(--tinta)}
 main{flex:1;display:flex;flex-direction:column;gap:16px;padding:18px 16px 24px}
@@ -77,13 +80,12 @@ h2{font-family:var(--serif);font-weight:600;font-size:20px;letter-spacing:-.01em
 .hero .h-pie b{font-size:17px;font-weight:700}
 .hero .h-pie span{font-size:12px;opacity:.92}
 .tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
-.tile{border:0;border-radius:20px;padding:12px;text-align:left;display:flex;flex-direction:column;gap:2px;min-width:0}
-.tile .ti{width:32px;height:32px;border-radius:10px;background:rgba(255,255,255,.7);display:flex;align-items:center;justify-content:center;margin-bottom:6px}
+.tile{background:var(--tarjeta);border:1px solid var(--borde);box-shadow:var(--sombra);color:var(--tinta);border-radius:20px;padding:12px;text-align:left;display:flex;flex-direction:column;gap:2px;min-width:0}
+.tile .ti{width:34px;height:34px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:8px}
 .tile strong{font-family:var(--serif);font-size:32px;font-weight:600;line-height:1}
 .tile b{font-size:13px;font-weight:700}
-.tile span:last-child{font-size:12px}
-.t-turq{background:var(--verde-fondo);color:var(--verde-tinta)} .t-oro{background:var(--oro-fondo);color:var(--oro-tinta)} .t-coral{background:var(--rojo-fondo);color:var(--rojo-tinta)}
-:root[data-piel="noche"] .tile .ti{background:rgba(255,255,255,.12)}
+.tile span:last-child{font-size:12px;color:var(--suave)}
+.t-turq .ti{background:var(--verde-fondo);color:var(--verde-tinta)} .t-oro .ti{background:var(--oro-fondo);color:var(--oro-tinta)} .t-coral .ti{background:var(--rojo-fondo);color:var(--rojo-tinta)}
 .accion{display:flex;align-items:center;gap:12px;width:100%;padding:12px 14px;background:none;border:0;border-bottom:1px solid var(--borde);text-align:left}
 .accion:last-child{border-bottom:0}
 .icono{width:36px;height:36px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
@@ -285,7 +287,7 @@ function semilla() {
 }
 let DB, deshacer = null;
 function cargar() { try { const t = localStorage.getItem(KEY); if (t) { DB = JSON.parse(t); if (DB && DB.productos && DB.ventas) return; } } catch (e) {} DB = semilla(); }
-function guardar() { try { localStorage.setItem(KEY, JSON.stringify(DB)); } catch (e) {} }
+function guardar() { if (U.real) return; try { localStorage.setItem(KEY, JSON.stringify(DB)); } catch (e) {} }
 function foto() { deshacer = JSON.stringify(DB); }
 
 /* ============ Cálculos ============ */
@@ -305,6 +307,70 @@ function aReponer() { const L = []; for (const p of DB.productos) for (const v o
 function filtrar(F) { return DB.ventas.filter(v => (!F.anio || v.fecha.slice(0, 4) === String(F.anio)) && (F.mes == null || F.mes === '' || Number(v.fecha.slice(5, 7)) - 1 === Number(F.mes)) && (!F.vend || v.vendedor === F.vend) && (!F.canal || v.canal === F.canal)); }
 function resumen(L) { const r = { vendido:0, cobrado:0, porCobrar:0, nCob:0, nPc:0, costo:0, n:L.length, porEntregar:0 }; for (const v of L) { const t = totalV(v); r.vendido += t; r.costo += costoV(v); if (v.cobrado) { r.cobrado += t; r.nCob++; } else { r.porCobrar += t; r.nPc++; } if (v.estado !== 'entregado') r.porEntregar++; } r.ganancia = r.vendido - r.costo; r.margen = r.vendido ? Math.round(r.ganancia / r.vendido * 100) : 0; return r; }
 
+/* ============ Datos reales (solo lectura): planillas de Pirí Ventas y Pirí Stock ============ */
+const API_V = 'https://script.google.com/macros/s/AKfycbyS6x8fnIvUPxDH9Y_zm_z2rwaJ5sf2lFP4rTuQoGxR9h-R1i2U-lfOR4ViKI98c-84/exec';
+const API_S = 'https://script.google.com/macros/s/AKfycbxCyZEmU8_eqwXoPPWfVz4u1X6NGV-yWTRwROb2FHJ4CwRFjvTXbIqe0Y_qQ9cz71YI/exec';
+const lsGet = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+const lsSet = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
+const nrm = s => String(s == null ? '' : s).toUpperCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^A-Z0-9]+/g, ' ').trim();
+const horaDe = t => { if (!t) return 'todavía no'; const d = new Date(t); return pad(d.getDate()) + '/' + pad(d.getMonth() + 1) + ' a las ' + pad(d.getHours()) + ':' + pad(d.getMinutes()); };
+function notaCostos() { return U.real && DB.sinCosto ? '<p class="nota">La ganancia es aproximada: ' + pl(DB.sinCosto, 'unidad vendida no tiene', 'unidades vendidas no tienen') + ' costo cargado en Pirí Stock.</p>' : ''; }
+function diaIso(f) { if (typeof f === 'string' && /^\d{4}-\d{2}-\d{2}/.test(f)) return f.slice(0, 10); const d = new Date(f); return isNaN(d) ? hoy() : iso(d); }
+async function pedir(url, cuerpo) {
+  let r; try { r = await fetch(url, { method:'POST', body:JSON.stringify(cuerpo) }); } catch (e) { throw new Error('No hay conexión con la planilla. Revisá internet y probá de nuevo.'); }
+  let j; try { j = await r.json(); } catch (e) { throw new Error('La planilla respondió algo que no se pudo leer.'); }
+  if (!j.ok) throw new Error(j.error || 'La planilla devolvió un error.');
+  return j;
+}
+function armarReal(jv, js) {
+  const grupos = {}, orden = [], mapa = {}, costoDe = {}, porId = {};
+  for (const p of js.productos || []) {
+    porId[p.id] = p;
+    const k = nrm(p.nombre), color = p.color || 'Único'; let g = grupos[k];
+    if (!g) { g = grupos[k] = { id:'R' + p.id, nombre:String(p.nombre), precio:0, costo:0, min:0, variantes:[] }; orden.push(g); }
+    g.variantes.push({ color, stock:Number(p.stock) || 0 });
+    if (!g.precio && Number(p.precio)) g.precio = Number(p.precio);
+    if (!g.costo && Number(p.costo)) g.costo = Number(p.costo);
+    if (Number(p.min) > g.min) g.min = Number(p.min);
+    mapa[p.id] = { gid:g.id, color };
+    const c = Number(p.costo) || 0;
+    if (c) { costoDe[nrm(p.nombre + ' ' + (p.color || ''))] = c; if (!costoDe[k]) costoDe[k] = c; }
+  }
+  for (const n in js.kits || {}) { let s = 0, ok = true; for (const c of js.kits[n]) { const p = porId[c.id]; if (p && Number(p.costo)) s += Number(p.costo) * (Number(c.cant) || 1); else ok = false; } if (ok && s) costoDe[nrm(n)] = s; }
+  const claves = Object.keys(costoDe).sort((a, b) => b.length - a.length);
+  const costo = nombre => { const k = nrm(nombre); if (costoDe[k]) return costoDe[k]; for (const c of claves) if (c.length > 5 && k.indexOf(c) >= 0) return costoDe[c]; return null; };
+  const E = { 'En preparación':'prep', 'Pronto':'listo', 'Entregado':'entregado' };
+  let sinCosto = 0;
+  const ventas = (jv.ventas || []).filter(v => E[v.estado]).map(v => {
+    const items = (v.items || []).map(i => { const envio = /^ENV[IÍ]O/i.test(String(i.producto || '').trim()), c = envio ? 0 : costo(i.producto); if (c == null) sinCosto += Number(i.cantidad) || 0; return { pid:null, color:'', nombre:String(i.producto || ''), cant:Number(i.cantidad) || 0, precio:Number(i.precio) || 0, costo:c || 0 }; });
+    const suma = items.reduce((s, i) => s + i.cant * i.precio, 0), tot = Number(v.total);
+    return { id:String(v.id), fecha:diaIso(v.fecha), cliente:String(v.cliente || 'Sin nombre'), tel:String(v.tel || ''), vendedor:String(v.vendedor || 'Sin vendedor'), canal:String(v.canal || 'Sin canal'), estado:E[v.estado], cobrado:!!v.cobrado, pago:'', notas:String(v.notas || ''), descuento:tot > 0 && tot < suma ? suma - tot : 0, items };
+  });
+  ventas.sort((a, b) => a.fecha < b.fecha ? -1 : a.fecha > b.fecha ? 1 : 0); ventas.forEach((v, i) => { v.n = i + 1; });
+  const compras = (js.compras || []).slice(0, 80).reverse().map(c => { const m = mapa[c.pid]; return { id:String(c.id), fecha:diaIso(c.fecha), proveedor:String(c.nota || ''), pid:m ? m.gid : '', color:m ? m.color : String(c.producto || ''), cant:Number(c.cant) || 0, costo:Number(c.costo) || 0 }; });
+  const movs = (js.movimientos || []).slice().reverse().map(m => { const x = mapa[m.pid]; return { id:String(m.id), fecha:diaIso(m.fecha), tipo:m.tipo === 'Entrada' ? 'compra' : /venta/i.test(m.tipo) ? 'venta' : 'ajuste', pid:x ? x.gid : '', color:x ? x.color : '', cant:Number(m.cant) || 0, nota:String(m.nota || m.canal || '') }; });
+  return { productos:orden, ventas, compras, movs, sec:{}, sinCosto, cuando:Date.now() };
+}
+function leerPins() { let p = null; try { p = JSON.parse(lsGet('piri.gestion.pins') || 'null'); } catch (e) {} return { v:(p && p.v) || lsGet('piri.pin') || '', s:(p && p.s) || lsGet('piri.stock.pin') || '' }; }
+function abrirPins(msg) {
+  const p = leerPins();
+  abrir('<div class="cabh"><h2>Conectar datos reales</h2>' + cerrarBtn() + '</div><p class="sub" style="font-size:14px">Son los mismos PIN que usás en tus otras dos apps. Quedan guardados solo en este dispositivo.</p>'
+    + '<div class="campo"><label for="pin-v">PIN de Pirí Ventas</label><input id="pin-v" type="password" inputmode="numeric" autocomplete="off" value="' + esc(p.v) + '"></div>'
+    + '<div class="campo"><label for="pin-s">PIN de Pirí Stock</label><input id="pin-s" type="password" inputmode="numeric" autocomplete="off" value="' + esc(p.s) + '"></div>'
+    + '<span class="aviso" id="err-pin"' + (msg ? '' : ' hidden') + '>' + esc(msg || '') + '</span><div class="btns"><button class="btn" data-a="pins-ok">Conectar</button></div>');
+}
+async function conectarReal(silencio) {
+  if (!/github\.io$/.test(location.hostname) && !window.__PRUEBA_REAL) { abrir('<div class="cabh"><h2>Datos reales</h2>' + cerrarBtn() + '</div><p>Los datos reales se ven solo en la app instalada desde GitHub. Esta copia dentro de Claude no puede conectarse a tus planillas.</p>'); return; }
+  const pins = leerPins(); if (!pins.v || !pins.s) { if (!silencio) abrirPins(); return; }
+  if (!silencio) toast('Leyendo tus planillas…');
+  try {
+    const r = await Promise.all([pedir(API_V, { pin:pins.v, action:'init' }), pedir(API_S, { pin:pins.s, usuario:lsGet('piri.stock.user') || 'Fer', action:'init' })]);
+    DB = armarReal(r[0], r[1]); U.real = true; deshacer = null; U.B = null;
+    lsSet('piri.gestion.real', JSON.stringify(DB)); lsSet('piri.gestion.modo', 'real');
+    cerrar(); pintar(); if (!silencio) toast('Datos reales actualizados');
+  } catch (e) { if (!silencio) abrirPins(e.message); }
+}
+
 /* ============ Estado de la interfaz ============ */
 const anioHoy = new Date().getFullYear();
 const U = { ruta:'inicio', F:{ anio:anioHoy, mes:'', vend:'', canal:'' }, sub:'informe', fped:'pend', qped:'', fst:'todos', qst:'', hoja:null, B:null };
@@ -316,9 +382,10 @@ function abrirPend() { if (U.pend) { const id = U.pend; U.pend = null; abrirVent
 /* ============ Encabezado y navegación ============ */
 function pintarCab() {
   const sub = { nueva:'Nueva venta', compras:'Compras', catalogo:'Catálogo' }[U.ruta];
+  const pill = U.real ? '<span class="pill-prueba real">Datos reales</span>' : '<span class="pill-prueba">Datos de prueba</span>';
   $('#cab').innerHTML = sub
-    ? '<button class="atras" data-a="volver" aria-label="Volver">' + ico(I.atras, 22) + '</button><div class="tit">' + sub + '</div><span class="pill-prueba">Prueba</span>'
-    : '<img src="' + LOGO + '" alt="Logo de Pirí"><div class="tit">Pirí <em>Gestión</em></div><span class="pill-prueba">Datos de prueba</span>';
+    ? '<button class="atras" data-a="volver" aria-label="Volver">' + ico(I.atras, 22) + '</button><div class="tit">' + sub + '</div>' + pill
+    : '<img src="' + LOGO + '" alt="Logo de Pirí"><div class="tit">Pirí <em>Gestión</em></div>' + pill;
   const a = (r, t, d) => '<a href="#' + r + '"' + (U.ruta === r || (r === 'mas' && (U.ruta === 'compras' || U.ruta === 'catalogo')) ? ' aria-current="page"' : '') + '>' + ico(d, 22) + t + '</a>';
   $('#nav').style.display = U.ruta === 'nueva' ? 'none' : '';
   $('#nav').innerHTML = a('inicio','Inicio',I.casa) + a('ventas','Ventas',I.barras) + '<a class="nueva" href="#nueva" aria-label="Nueva venta">' + ico(I.mas, 24) + '</a>' + a('stock','Stock',I.caja) + a('mas','Más',I.menu);
@@ -353,7 +420,7 @@ function fotoProd(color, nombre) {
 function tarjetaPedido(v) {
   const sig = v.estado === 'prep' ? ['listo','Marcar listo'] : v.estado === 'listo' ? ['entregado','Entregar'] : null;
   return '<div class="tarjeta ped"><div class="cabp"><div><div class="cli">' + esc(v.cliente) + '</div><div class="sub">Pedido ' + v.n + ' · ' + fcorta(v.fecha) + ' · ' + esc(v.canal) + ' · ' + esc(v.vendedor) + '</div></div><strong class="grande num">' + fmt(totalV(v)) + '</strong></div>'
-    + '<ul>' + v.items.map(i => '<li>' + i.cant + ' × ' + esc(i.nombre) + ' · ' + esc(i.color) + '</li>').join('') + '</ul>'
+    + '<ul>' + v.items.map(i => '<li>' + i.cant + ' × ' + esc(i.nombre) + (i.color ? ' · ' + esc(i.color) : '') + '</li>').join('') + '</ul>'
     + '<div class="btns" style="flex-wrap:nowrap;gap:6px"><span class="estado ' + (v.estado === 'entregado' ? 'e-ok' : v.estado === 'listo' ? 'e-poco' : 'e-neutro') + '">' + EST[v.estado] + '</span><span class="estado ' + (v.cobrado ? 'e-ok' : 'e-rep') + '">' + (v.cobrado ? 'Cobrado' : 'Sin cobrar') + '</span></div>'
     + '<div class="btns">' + (sig ? '<button class="btn chico" data-a="estado" data-id="' + v.id + '" data-e="' + sig[0] + '">' + sig[1] + '</button>' : '')
     + (v.cobrado ? '' : '<button class="btn chico sec" data-a="cobrar" data-id="' + v.id + '">Marcar cobrado</button>')
@@ -379,7 +446,7 @@ function vInicio() {
     + tile('ir-cobrar', 't-oro', I.cobro, pc.length, 'Por cobrar', pc.length ? fmt(pc.reduce((s, v) => s + totalV(v), 0)) : 'Todo cobrado')
     + tile('ir-reponer', 't-coral', I.alerta, rep.length, 'A reponer', rep.length ? pl(rep.length, 'color', 'colores') : 'Todo en orden') + '</div>'
     + '<div class="fila-tit"><h2>Resultados ' + anioHoy + '</h2><button class="enlace" data-a="ir-informe">Ver informe</button></div>'
-    + kpis(r) + grafico(F);
+    + kpis(r) + notaCostos() + grafico(F);
 }
 function ranking(L) {
   const m = {}; for (const v of L) for (const i of v.items) { const o = m[i.nombre] || (m[i.nombre] = { n:0, t:0 }); o.n += i.cant; o.t += i.cant * i.precio; }
@@ -398,8 +465,8 @@ function vVentas() {
   const sel = (id, et, ops, val) => '<div class="campo"><label for="' + id + '">' + et + '</label><select id="' + id + '" data-f="' + id + '">' + ops.map(o => '<option value="' + esc(o[0]) + '"' + (String(val) === String(o[0]) ? ' selected' : '') + '>' + esc(o[1]) + '</option>').join('') + '</select></div>';
   return '<div><p class="ceja">Resultados</p><h1>Informe de ventas</h1></div>' + tabs
     + '<div class="dos">' + sel('anio', 'Año', anios.map(a => [a, a]), F.anio) + sel('mes', 'Mes', [['', 'Todo el año']].concat(MESL.map((m, i) => [i, m[0].toUpperCase() + m.slice(1)])), F.mes)
-    + sel('vend', 'Vendedor', [['', 'Todos']].concat(VEND.map(v => [v, v])), F.vend) + sel('canal', 'Canal', [['', 'Todos']].concat(CANALES.map(c => [c, c])), F.canal) + '</div>'
-    + kpis(r) + grafico(F)
+    + sel('vend', 'Vendedor', [['', 'Todos']].concat(Array.from(new Set(DB.ventas.map(v => v.vendedor))).sort().map(v => [v, v])), F.vend) + sel('canal', 'Canal', [['', 'Todos']].concat(Array.from(new Set(DB.ventas.map(v => v.canal))).sort().map(c => [c, c])), F.canal) + '</div>'
+    + kpis(r) + notaCostos() + grafico(F)
     + (L.length ? '<h2>Productos más vendidos</h2>' + ranking(L) + '<h2>Por canal</h2>' + reparto(L, 'canal') + '<h2>Por vendedor</h2>' + reparto(L, 'vendedor')
       + '<div class="btns"><button class="btn sec" data-a="csv">' + ico(I.copiar, 18) + 'Copiar estas ventas para Excel</button></div>'
       : '<div class="tarjeta vacio">No hay ventas con estos filtros.</div>');
@@ -459,7 +526,9 @@ function vMas() {
   return '<div><p class="ceja">Menú</p><h1>Más</h1></div>'
     + '<div class="tarjeta">' + f('ir-pedidos', I.lista, 'Pedidos', 'Entregas, cobros y detalle de cada venta') + f('ir-compras', I.bolsa, 'Compras', 'Sumar mercadería y actualizar costos') + f('ir-catalogo', I.grilla, 'Catálogo', 'Lista de productos para pasar a clientes') + '</div>'
     + '<h2>Apariencia</h2><div class="seg">' + [['piri', 'Pirí'], ['noche', 'Noche'], ['clasico', 'Clásico']].map(o => '<button class="chip" data-a="piel" data-k="' + o[0] + '" aria-pressed="' + (U.piel === o[0]) + '">' + o[1] + '</button>').join('') + '</div>'
-    + '<h2>Datos de prueba</h2><p class="sub" style="font-size:14px">Esta versión usa ventas y stock ficticios. Lo que cargues queda guardado solo en este navegador, en este dispositivo.</p>'
+    + '<h2>Datos</h2><div class="seg"><button class="chip" data-a="modo" data-k="prueba" aria-pressed="' + !U.real + '">De prueba</button><button class="chip" data-a="modo" data-k="real" aria-pressed="' + !!U.real + '">Reales</button></div>'
+    + (U.real ? '<p class="sub" style="font-size:14px">Mostrando tus planillas de Pirí Ventas y Pirí Stock, solo para leer. Última lectura: ' + horaDe(DB.cuando) + '.</p><div class="btns"><button class="btn sec" data-a="refrescar">' + ico(I.reinicio, 18) + 'Actualizar ahora</button></div>'
+      : '<p class="sub" style="font-size:14px">Ahora ves ventas y stock ficticios. Lo que cargues queda guardado solo en este navegador, en este dispositivo.</p>')
     + '<div class="btns"><button class="btn peligro" data-a="reiniciar">' + ico(I.reinicio, 18) + 'Volver a los datos de ejemplo</button></div>';
 }
 
@@ -524,7 +593,7 @@ function cambiarEstado(v, nuevo, sinFoto) {
   v.estado = nuevo;
 }
 function comprobante(v) {
-  return 'Pirí · Diseño Láser\nPedido ' + v.n + ' · ' + fcorta(v.fecha) + '/' + v.fecha.slice(0, 4) + '\nCliente: ' + v.cliente + '\n\n' + v.items.map(i => i.cant + ' × ' + i.nombre + ' · ' + i.color + ' — ' + fmt(i.cant * i.precio)).join('\n')
+  return 'Pirí · Diseño Láser\nPedido ' + v.n + ' · ' + fcorta(v.fecha) + '/' + v.fecha.slice(0, 4) + '\nCliente: ' + v.cliente + '\n\n' + v.items.map(i => i.cant + ' × ' + i.nombre + (i.color ? ' · ' + i.color : '') + ' — ' + fmt(i.cant * i.precio)).join('\n')
     + (v.descuento ? '\nDescuento: ' + fmt(-v.descuento) : '') + '\n\nTotal: ' + fmt(totalV(v)) + '\n' + (v.cobrado ? 'Pago recibido' + (v.pago ? ' (' + v.pago + ')' : '') : 'Pendiente de pago') + '\n¡Gracias por tu compra!';
 }
 function csv(L) { return 'Pedido\tFecha\tCliente\tVendedor\tCanal\tEstado\tCobrado\tProductos\tTotal\tCosto\tGanancia\n' + L.map(v => [v.n, v.fecha, v.cliente, v.vendedor, v.canal, EST[v.estado], v.cobrado ? 'Sí' : 'No', v.items.map(i => i.cant + ' x ' + i.nombre + ' ' + i.color).join('; '), totalV(v), costoV(v), totalV(v) - costoV(v)].join('\t')).join('\n'); }
@@ -555,10 +624,10 @@ function abrirProd(id) {
     + '<div class="resumen"><div><strong>' + fmt(p.precio) + '</strong><span>precio</span></div><div><strong>' + fmt(p.costo) + '</strong><span>costo promedio</span></div><div><strong>' + (p.precio ? Math.round((p.precio - p.costo) / p.precio * 100) : 0) + ' %</strong><span>margen</span></div></div>'
     + '<div class="tarjeta">' + p.variantes.map(v => { const r = reservado(p.id, v.color); return '<div class="var"><div><div class="n"><span class="punto" style="background:' + hex(v.color) + '"></span>' + esc(v.color) + ' ' + etq(estadoVar(p, v)) + '</div><div class="sub">' + v.stock + ' en mano · ' + r + ' reservadas · ' + (v.stock - r) + ' disponibles</div></div>'
       + '<div class="pasos"><button class="pm" data-a="aj" data-id="' + p.id + '" data-c="' + esc(v.color) + '" data-d="-1" aria-label="Restar una unidad de ' + esc(v.color) + '"' + (v.stock - r <= 0 ? ' disabled' : '') + '>' + ico(I.menos, 18) + '</button><output>' + v.stock + '</output><button class="pm mas" data-a="aj" data-id="' + p.id + '" data-c="' + esc(v.color) + '" data-d="1" aria-label="Sumar una unidad de ' + esc(v.color) + '">' + ico(I.mas, 18) + '</button></div></div>'; }).join('') + '</div>'
-    + '<p class="sub">Los botones + y − corrigen el conteo. Para mercadería nueva usá Registrar compra, así se actualiza el costo.</p>'
-    + '<div class="tarjeta" style="padding:12px;display:flex;flex-direction:column;gap:10px"><b>Agregar un color</b><span class="sub">Tocá uno y queda agregado a este producto.</span><div class="seg">' + ['Negro','Blanco','Rosa','Celeste','Menta','Gris','Verde','Azul','Rojo','Lila','Beige','Acero'].filter(c => !p.variantes.some(v => v.color.toLowerCase() === c.toLowerCase())).map(c => '<button class="chip nuevo" data-a="color-add" data-id="' + p.id + '" data-c="' + c + '"><span class="punto" style="background:' + hex(c) + '"></span>' + c + '</button>').join('') + '</div>'
+    + '<p class="sub solo-prueba">Los botones + y − corrigen el conteo. Para mercadería nueva usá Registrar compra, así se actualiza el costo.</p>'
+    + '<div class="tarjeta solo-prueba" style="padding:12px;display:flex;flex-direction:column;gap:10px"><b>Agregar un color</b><span class="sub">Tocá uno y queda agregado a este producto.</span><div class="seg">' + ['Negro','Blanco','Rosa','Celeste','Menta','Gris','Verde','Azul','Rojo','Lila','Beige','Acero'].filter(c => !p.variantes.some(v => v.color.toLowerCase() === c.toLowerCase())).map(c => '<button class="chip nuevo" data-a="color-add" data-id="' + p.id + '" data-c="' + c + '"><span class="punto" style="background:' + hex(c) + '"></span>' + c + '</button>').join('') + '</div>'
     + '<div class="fila-color"><div class="campo"><label for="e-color">Otro color</label><input id="e-color" placeholder="Ej. Bordó"></div><div class="campo"><label for="e-cant">Unidades</label><input id="e-cant" type="number" inputmode="numeric" min="0" value="0"></div><button class="btn chico" data-a="color-add" data-id="' + p.id + '">Agregar</button></div><span class="aviso" id="err-color" hidden></span></div>'
-    + '<div class="dos"><div class="campo"><label for="e-precio">Precio de venta</label><input id="e-precio" type="number" inputmode="numeric" min="0" value="' + p.precio + '"></div><div class="campo"><label for="e-min">Avisar cuando queden</label><input id="e-min" type="number" inputmode="numeric" min="0" value="' + p.min + '"></div></div>'
+    + '<div class="dos solo-prueba"><div class="campo"><label for="e-precio">Precio de venta</label><input id="e-precio" type="number" inputmode="numeric" min="0" value="' + p.precio + '"></div><div class="campo"><label for="e-min">Avisar cuando queden</label><input id="e-min" type="number" inputmode="numeric" min="0" value="' + p.min + '"></div></div>'
     + '<div class="btns"><button class="btn" data-a="guardar-prod" data-id="' + p.id + '">Guardar cambios</button><button class="btn sec" data-a="nueva-compra" data-id="' + p.id + '">Registrar compra</button></div>'
     + '<h2>Últimos movimientos</h2>' + (ms.length ? '<div class="tarjeta" style="padding:4px 14px"><table class="tabla">' + ms.map(m => '<tr><td><b>' + ({ compra:'Compra', venta:'Venta', ajuste:'Ajuste' }[m.tipo]) + '</b> · ' + esc(m.color) + '<br><span class="sub">' + fcorta(m.fecha) + (m.nota ? ' · ' + esc(m.nota) : '') + '</span></td><td class="num"><b>' + (m.cant > 0 ? '+' : '−') + Math.abs(m.cant) + '</b></td></tr>').join('') + '</table></div>' : '<p class="sub">Sin movimientos todavía.</p>'));
 }
@@ -590,9 +659,11 @@ function toast(msg, conDeshacer) { clearTimeout(tt); $('#tostada').innerHTML = '
 /* ============ Pintar ============ */
 function pintar() {
   const h = location.hash.slice(1); U.ruta = RUTAS.indexOf(h) >= 0 ? h : 'inicio';
+  document.documentElement.dataset.modo = U.real ? 'real' : 'prueba';
   if (U.ruta === 'nueva' && !U.B) U.B = borrador();
   pintarCab();
   $('#vista').innerHTML = ({ inicio:vInicio, ventas:vVentas, nueva:vNueva, stock:vStock, compras:vCompras, catalogo:vCatalogo, mas:vMas }[U.ruta])();
+  if (U.ruta === 'nueva' && U.real) { $('#vista').innerHTML = '<div><p class="ceja">Datos reales</p><h1>Las ventas se cargan en Pirí Ventas</h1></div><p style="font-size:15px">Por ahora Pirí Gestión muestra tus datos reales sin modificarlos. Cargá la venta en Pirí Ventas y acá aparece al actualizar.</p><div class="btns"><a class="btn" href="https://fercaroyromi-hub.github.io/piri-ventas/">Abrir Pirí Ventas</a><a class="btn sec" href="https://fercaroyromi-hub.github.io/piri-stock/">Abrir Pirí Stock</a></div>'; $('#pie').innerHTML = ''; return; }
   $('#pie').innerHTML = U.ruta === 'nueva' ? pieNueva() : '';
 }
 function repintarHoja() { const h = U.hoja; if (!h) return; if (h.t === 'venta') abrirVenta(h.id); else if (h.t === 'prod') abrirProd(h.id); }
@@ -603,8 +674,12 @@ document.addEventListener('click', e => {
   const el = e.target.closest('[data-a]'); if (!el) return;
   const a = el.dataset.a, d = el.dataset;
   if (a === 'velo') { if (e.target === el) cerrar(); return; }
+  if (U.real && ['estado','cobrar','anular','anular-si','aj','guardar-prod','nuevo-prod','crear-prod','color-add','nueva-compra','guardar-compra','reiniciar','reiniciar-si','b-sig','b-mas','b-menos'].indexOf(a) >= 0) { toast('Los datos reales son solo para leer por ahora.'); return; }
   switch (a) {
     case 'cerrar': cerrar(); break;
+    case 'modo': if (d.k === 'real') conectarReal(false); else { U.real = false; lsSet('piri.gestion.modo', 'prueba'); cargar(); deshacer = null; pintar(); toast('Viendo datos de prueba'); } break;
+    case 'refrescar': conectarReal(false); break;
+    case 'pins-ok': { const v = $('#pin-v').value.trim(), st = $('#pin-s').value.trim(); if (!v || !st) { $('#err-pin').textContent = 'Escribí los dos PIN.'; $('#err-pin').hidden = false; break; } lsSet('piri.gestion.pins', JSON.stringify({ v:v, s:st })); cerrar(); conectarReal(false); break; }
     case 'volver': if (U.ruta === 'nueva' && U.B && U.B.paso > 1) { U.B.paso--; pintar(); window.scrollTo(0, 0); } else { if (U.ruta === 'nueva') U.B = null; ir(U.ruta === 'nueva' ? 'inicio' : 'mas'); } break;
     case 'ir-pend': U.sub = 'pedidos'; U.fped = 'pend'; U.qped = ''; ir('ventas'); break;
     case 'ir-cobrar': U.sub = 'pedidos'; U.fped = 'cobrar'; U.qped = ''; ir('ventas'); break;
@@ -671,7 +746,10 @@ window.addEventListener('hashchange', () => { cerrar(); pintar(); window.scrollT
 try { U.piel = localStorage.getItem('piri.gestion.piel') || 'piri'; } catch (e) { U.piel = 'piri'; }
 if (['piri', 'noche', 'clasico'].indexOf(U.piel) < 0) U.piel = 'piri';
 document.documentElement.dataset.piel = U.piel;
-cargar(); pintar();
+cargar();
+if (lsGet('piri.gestion.modo') === 'real') { try { const c = JSON.parse(lsGet('piri.gestion.real') || 'null'); if (c && c.productos && c.ventas) { DB = c; U.real = true; } } catch (e) {} }
+pintar();
+if (U.real) conectarReal(true);
 if ('serviceWorker' in navigator && location.protocol === 'https:') { try { navigator.serviceWorker.register('sw.js').catch(function () {}); } catch (e) {} }
 </script>
 </body>
