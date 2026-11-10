@@ -9,158 +9,154 @@
 <meta property="og:description" content="Regalos personalizados con grabado láser. Elegí y pedí por WhatsApp.">
 <meta property="og:image" content="https://fercaroyromi-hub.github.io/piri-gestion/icon-512.png">
 <meta property="og:type" content="website">
-<meta name="theme-color" content="#FBF6EE">
+<meta name="theme-color" content="#103B37">
 <link rel="icon" href="icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&display=swap" rel="stylesheet">
 <style>
 :root{--crema:#FBF6EE;--papel:#FFFDF9;--tinta:#16130F;--suave:#6F665B;--turq:#0E7C78;--turq2:#0A5F5C;--coral:#E8674E;--oro:#C9A45C;--oro2:#F3C56B;--linea:#E9DECD;--pino:#103B37}
 *{box-sizing:border-box;margin:0}
-html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
-body{background:var(--crema);color:var(--tinta);font-family:'DM Sans',system-ui,sans-serif;font-size:15px;line-height:1.45;-webkit-font-smoothing:antialiased}
+html,body{height:100%}
+body{background:var(--tinta);color:var(--tinta);font-family:'DM Sans',system-ui,sans-serif;font-size:15px;line-height:1.45;-webkit-font-smoothing:antialiased;overflow:hidden}
 button,input{font:inherit;color:inherit}
 button{cursor:pointer}
 img{display:block;max-width:100%}
-.ancho{max-width:1120px;margin:0 auto;padding:0 18px}
 .serif{font-family:'Fraunces',Georgia,serif}
-:focus-visible{outline:2px solid var(--turq);outline-offset:2px}
+:focus-visible{outline:2px solid var(--oro2);outline-offset:2px}
 
-/* cabecera */
-.cab{display:flex;align-items:center;gap:12px;padding:16px 0 6px}
-.cab img{width:46px;height:46px;border-radius:14px;box-shadow:0 2px 10px rgba(22,19,15,.12)}
-.cab .marca{flex:1;min-width:0}
-.cab .marca b{display:block;font-family:'Fraunces',Georgia,serif;font-size:19px;font-weight:600;letter-spacing:-.01em}
-.cab .marca span{font-size:12px;color:var(--suave)}
-.pill{display:inline-flex;align-items:center;gap:7px;min-height:42px;padding:0 16px;border-radius:999px;border:1px solid var(--turq);background:transparent;color:var(--turq2);font-weight:700;font-size:13px}
-.pill svg{width:17px;height:17px}
+/* la revista: una página por pantalla */
+#rev{height:100dvh;overflow-y:auto;scroll-snap-type:y mandatory;scrollbar-width:none;overscroll-behavior:contain}
+#rev::-webkit-scrollbar{display:none}
+.pag{position:relative;height:100dvh;scroll-snap-align:start;scroll-snap-stop:always;overflow:hidden;display:flex;flex-direction:column}
+.dentro{width:100%;max-width:1080px;margin:0 auto}
+
+/* barra de arriba */
+.barra{position:fixed;left:0;right:0;top:0;z-index:10;display:flex;align-items:center;gap:10px;padding:calc(10px + env(safe-area-inset-top)) 14px 10px;pointer-events:none;transition:color .25s}
+.barra>*{pointer-events:auto}
+.barra img{width:36px;height:36px;border-radius:11px;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.barra .donde{flex:1;min-width:0;font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.barra.clara{color:#FBF3E2}
+.ind{display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:0 14px;border-radius:999px;border:1px solid currentColor;background:transparent;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.ind svg{width:16px;height:16px}
+.avance{position:fixed;left:0;top:0;z-index:11;height:3px;width:0;background:linear-gradient(90deg,var(--oro),var(--oro2));transition:width .3s}
 
 /* portada */
-.portada{padding:26px 0 8px}
-.ceja{font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--turq)}
-.portada h1{font-family:'Fraunces',Georgia,serif;font-weight:500;font-size:clamp(34px,8.5vw,60px);line-height:1.02;letter-spacing:-.025em;margin:10px 0 14px;max-width:13ch}
-.portada h1 em{color:var(--turq);font-style:italic}
-.portada p{color:var(--suave);font-size:16px;max-width:46ch}
-.fiestas{position:relative;overflow:hidden;margin-top:22px;border-radius:22px;background:linear-gradient(120deg,var(--pino),#0C5450 70%,#7A3B2E 140%);color:#FBF3E2;padding:18px 20px;display:none;align-items:center;gap:14px}
-.fiestas.on{display:flex}
-.fiestas .arbol{width:38px;height:38px;flex-shrink:0}
-.fiestas b{display:block;font-family:'Fraunces',Georgia,serif;font-weight:500;font-size:19px;letter-spacing:-.01em}
-.fiestas span{font-size:13px;opacity:.85}
-.fiestas i{position:absolute;color:var(--oro2);font-style:normal;animation:brillo 3.2s ease-in-out infinite;pointer-events:none}
-@keyframes brillo{0%,100%{opacity:.15;transform:scale(.7)}50%{opacity:.95;transform:scale(1.15)}}
+.tapa{background:radial-gradient(120% 80% at 80% 0%,#17544E 0%,var(--pino) 55%,#0A2725 100%);color:#FBF3E2;justify-content:flex-end;padding:0 24px calc(34px + env(safe-area-inset-bottom))}
+.tapa .dentro{display:flex;flex-direction:column;gap:18px}
+.tapa .ceja{font-size:11px;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:var(--oro2)}
+.tapa h1{font-family:'Fraunces',Georgia,serif;font-weight:400;font-size:clamp(52px,15vw,112px);line-height:.94;letter-spacing:-.035em}
+.tapa h1 em{font-style:italic;color:var(--oro2)}
+.tapa p{font-size:16px;opacity:.82;max-width:34ch}
+.tapa .fiesta{display:none;align-items:center;gap:10px;font-size:13px;font-weight:500;color:var(--oro2)}
+.tapa .fiesta.on{display:flex}
+.tapa .fiesta svg{width:22px;height:22px}
+.desliza{display:flex;align-items:center;gap:10px;font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;opacity:.9;background:none;border:0;padding:8px 0;color:inherit}
+.desliza svg{width:18px;height:18px;animation:sube 1.6s ease-in-out infinite}
+@keyframes sube{0%,100%{transform:translateY(3px)}50%{transform:translateY(-4px)}}
+.chispa{position:absolute;color:var(--oro2);animation:brillo 3.4s ease-in-out infinite;pointer-events:none;font-size:12px}
+@keyframes brillo{0%,100%{opacity:.1;transform:scale(.6)}50%{opacity:.9;transform:scale(1.2)}}
+.sello-tapa{position:absolute;right:-60px;top:12%;width:260px;height:260px;border-radius:50%;border:1px solid rgba(243,197,107,.35);display:flex;align-items:center;justify-content:center}
+.sello-tapa::after{content:"";position:absolute;inset:18px;border-radius:50%;border:1px solid rgba(243,197,107,.18)}
+.sello-tapa img{width:120px;height:120px;border-radius:32px;box-shadow:0 20px 50px rgba(0,0,0,.4)}
 
-/* buscador y categorías */
-.buscar{position:relative;margin:22px 0 0}
-.buscar svg{position:absolute;left:16px;top:50%;width:18px;height:18px;transform:translateY(-50%);color:var(--suave)}
-.buscar input{width:100%;min-height:50px;padding:0 18px 0 44px;border-radius:999px;border:1px solid var(--linea);background:var(--papel);font-size:15px}
-.buscar input::placeholder{color:#9A9085}
-.cats{position:sticky;top:0;z-index:5;background:rgba(251,246,238,.92);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid transparent;margin-top:14px}
-.cats.pegada{border-color:var(--linea)}
-.cats .fila{display:flex;gap:8px;overflow-x:auto;padding:10px 18px;scrollbar-width:none;max-width:1120px;margin:0 auto}
-.cats .fila::-webkit-scrollbar{display:none}
-.cat{flex:0 0 auto;min-height:40px;padding:0 15px;border-radius:999px;border:1px solid var(--linea);background:var(--papel);font-size:13px;font-weight:500;white-space:nowrap}
-.cat[aria-pressed=true]{background:var(--tinta);border-color:var(--tinta);color:#fff;font-weight:700}
+/* capítulo */
+.cap{justify-content:flex-end;padding:0 24px calc(40px + env(safe-area-inset-bottom));color:#FBF3E2}
+.cap.c0{background:var(--turq2)}.cap.c1{background:var(--tinta)}.cap.c2{background:#B94A34}.cap.c3{background:var(--pino)}
+.cap .num{position:absolute;right:-10px;top:8%;font-family:'Fraunces',Georgia,serif;font-style:italic;font-weight:400;font-size:min(62vw,360px);line-height:.8;color:transparent;-webkit-text-stroke:1px rgba(251,243,226,.28);pointer-events:none}
+.cap .ceja{font-size:11px;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:var(--oro2);margin-bottom:12px}
+.cap h2{font-family:'Fraunces',Georgia,serif;font-weight:400;font-size:clamp(44px,12.5vw,96px);line-height:.98;letter-spacing:-.03em;max-width:9ch}
+.cap p{margin-top:14px;font-size:14px;opacity:.75}
 
-/* secciones y tarjetas */
-.aviso{display:none;align-items:center;justify-content:space-between;gap:10px;margin-top:16px;padding:12px 16px;border-radius:16px;background:#E4F1EF;color:var(--turq2);font-size:13.5px;font-weight:500}
-.aviso.on{display:flex}
-.aviso button{background:none;border:0;font-weight:700;text-decoration:underline;color:inherit;padding:6px}
-section{padding-top:30px;scroll-margin-top:64px}
-.tit{display:flex;align-items:baseline;gap:12px;margin-bottom:14px}
-.tit h2{font-family:'Fraunces',Georgia,serif;font-weight:500;font-size:25px;letter-spacing:-.02em}
-.tit i{flex:1;height:1px;background:linear-gradient(90deg,var(--oro),transparent)}
-.tit span{font-size:12px;color:var(--suave)}
-.grilla{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-@media(min-width:700px){.grilla{grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}}
-@media(min-width:1000px){.grilla{grid-template-columns:repeat(4,minmax(0,1fr))}}
-.prod{display:flex;flex-direction:column;text-align:left;padding:0;border:0;background:var(--papel);border-radius:20px;overflow:hidden;box-shadow:0 1px 0 var(--linea),0 10px 24px -18px rgba(22,19,15,.35);transition:transform .18s ease,box-shadow .18s ease}
-.prod:hover{transform:translateY(-3px);box-shadow:0 1px 0 var(--linea),0 18px 30px -18px rgba(22,19,15,.45)}
-.prod .ft{position:relative;aspect-ratio:1;background:#fff}
-.prod .ft img{width:100%;height:100%;object-fit:cover}
-.sello{position:absolute;left:10px;top:10px;padding:4px 10px;border-radius:999px;font-size:10.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;background:rgba(255,253,249,.94);color:var(--turq2)}
-.sello.ped{color:#8A5A12}
-.prod .inf{padding:12px 13px 14px;display:flex;flex-direction:column;gap:5px;flex:1}
-.prod .nom{font-weight:500;font-size:13.5px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.prod .pie{display:flex;align-items:baseline;justify-content:space-between;gap:6px;margin-top:auto;padding-top:4px}
-.precio{font-family:'Fraunces',Georgia,serif;font-weight:600;font-size:19px;letter-spacing:-.01em}
-.prod .mod{font-size:11.5px;color:var(--suave)}
-.vacio{padding:50px 0;text-align:center;color:var(--suave)}
-.esq{aspect-ratio:.78;border-radius:20px;background:linear-gradient(100deg,#F1E8DA 30%,#F8F1E6 50%,#F1E8DA 70%);background-size:300% 100%;animation:onda 1.3s linear infinite}
-@keyframes onda{to{background-position:-150% 0}}
+/* producto */
+.prod{background:var(--crema)}
+.prod .foto{position:relative;flex:1 1 0;min-height:0;background:#fff;border-radius:0 0 34px 34px;overflow:hidden;box-shadow:0 18px 40px -30px rgba(22,19,15,.5)}
+.gal{display:flex;height:100%;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none}
+.gal::-webkit-scrollbar{display:none}
+.gal img{flex:0 0 100%;width:100%;height:100%;object-fit:contain;scroll-snap-align:center;padding-top:calc(52px + env(safe-area-inset-top))}
+.puntos{position:absolute;left:0;right:0;bottom:12px;display:flex;justify-content:center;gap:6px;pointer-events:none}
+.puntos i{width:6px;height:6px;border-radius:999px;background:rgba(22,19,15,.18)}
+.puntos i.on{width:18px;background:var(--turq)}
+.estado{position:absolute;left:16px;bottom:14px;padding:5px 11px;border-radius:999px;background:rgba(255,253,249,.95);font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--turq2);box-shadow:0 1px 6px rgba(0,0,0,.08)}
+.estado.ped{color:#8A5A12}
+.prod .texto{flex:0 0 auto;padding:18px 22px calc(18px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:12px}
+.prod .arr{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.prod .ceja{font-size:10.5px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--turq)}
+.prod .cuenta{font-family:'Fraunces',Georgia,serif;font-style:italic;font-size:14px;color:var(--suave);white-space:nowrap}
+.prod h3{font-family:'Fraunces',Georgia,serif;font-weight:500;font-size:clamp(25px,7vw,40px);line-height:1.06;letter-spacing:-.025em;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.prod .precio{font-family:'Fraunces',Georgia,serif;font-weight:600;font-size:30px;letter-spacing:-.02em}
+.prod .precio small{font:500 12px 'DM Sans',sans-serif;color:var(--suave);letter-spacing:0}
+.mods{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:0 -22px;padding:0 22px}
+.mods::-webkit-scrollbar{display:none}
+.modb{flex:0 0 auto;min-height:40px;padding:0 14px;border-radius:999px;border:1px solid var(--linea);background:var(--papel);font-size:13px;font-weight:500;white-space:nowrap}
+.modb[aria-pressed=true]{background:var(--tinta);border-color:var(--tinta);color:#fff;font-weight:700}
+.acc{display:flex;gap:10px}
+.wa{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:54px;padding:0 22px;border-radius:999px;border:0;background:#1FA855;color:#fff;font-weight:700;font-size:15.5px}
+.wa svg{width:21px;height:21px}
+.red{flex:0 0 54px;width:54px;height:54px;border-radius:999px;border:1px solid var(--linea);background:var(--papel);display:flex;align-items:center;justify-content:center}
+.red svg{width:20px;height:20px}
+@media(min-width:860px){
+  .prod{flex-direction:row;align-items:stretch}
+  .prod .foto{flex:1 1 55%;border-radius:0 44px 44px 0}
+  .prod .texto{flex:1 1 45%;justify-content:center;gap:18px;padding:80px 6vw 60px;max-width:560px}
+  .prod .acc{max-width:380px}
+  .mods{flex-wrap:wrap;margin:0;padding:0}
+  .tapa,.cap{padding-left:6vw;padding-right:6vw}
+}
+@media(max-height:620px){.prod h3{-webkit-line-clamp:2;font-size:23px}.prod .precio{font-size:25px}.prod .texto{gap:9px;padding-top:12px}}
 
 /* cierre */
-.cierre{margin:44px 0 0;padding:34px 22px;border-radius:26px;background:var(--tinta);color:#F6EEDF;text-align:center}
-.cierre h3{font-family:'Fraunces',Georgia,serif;font-weight:500;font-size:26px;letter-spacing:-.02em}
-.cierre p{opacity:.75;margin:8px auto 18px;max-width:38ch}
-.wa{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:52px;padding:0 24px;border-radius:999px;border:0;background:#1FA855;color:#fff;font-weight:700;font-size:15px}
-.wa svg{width:21px;height:21px}
-footer{padding:26px 0 96px;text-align:center;font-size:12px;color:var(--suave)}
-.flota{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom));z-index:8;width:58px;height:58px;border-radius:999px;border:0;background:#1FA855;color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 10px 24px -8px rgba(18,110,56,.7)}
-.flota svg{width:29px;height:29px}
+.fin{background:var(--tinta);color:#F6EEDF;justify-content:center;align-items:center;text-align:center;padding:24px}
+.fin h2{font-family:'Fraunces',Georgia,serif;font-weight:400;font-size:clamp(38px,10vw,72px);line-height:1;letter-spacing:-.03em}
+.fin h2 em{color:var(--oro2);font-style:italic}
+.fin p{opacity:.75;margin:16px auto 26px;max-width:34ch}
+.fin .wa{flex:none}
+.fin small{display:block;margin-top:26px;font-size:12px;opacity:.5}
+.fin .arriba{margin-top:18px;background:none;border:0;color:inherit;font-size:13px;text-decoration:underline;opacity:.8;padding:10px}
 
-/* ficha */
-.velo{position:fixed;inset:0;z-index:20;background:rgba(15,12,8,.62);display:none;align-items:flex-end;justify-content:center}
+/* índice */
+.velo{position:fixed;inset:0;z-index:20;background:var(--crema);display:none;flex-direction:column}
 .velo.on{display:flex}
-.ficha{position:relative;width:100%;max-width:520px;max-height:94dvh;overflow-y:auto;background:var(--crema);border-radius:28px 28px 0 0;animation:sube .28s cubic-bezier(.2,.8,.2,1)}
-@keyframes sube{from{transform:translateY(40px);opacity:0}}
-@media(min-width:700px){.velo{align-items:center;padding:24px}.ficha{border-radius:28px}}
-.cerrar{position:absolute;right:14px;top:14px;z-index:2;width:44px;height:44px;border-radius:999px;border:0;background:rgba(255,253,249,.95);box-shadow:0 2px 10px rgba(0,0,0,.18);font-size:20px;line-height:1}
-.gal{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;background:#fff}
-.gal::-webkit-scrollbar{display:none}
-.gal img{flex:0 0 100%;width:100%;aspect-ratio:1;object-fit:contain;scroll-snap-align:center;background:#fff}
-.puntos{display:flex;justify-content:center;gap:6px;padding:10px 0 0}
-.puntos i{width:6px;height:6px;border-radius:999px;background:var(--linea)}
-.puntos i.on{background:var(--turq);width:18px}
-.cuerpo{padding:16px 20px calc(22px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:14px}
-.cuerpo h2{font-family:'Fraunces',Georgia,serif;font-weight:500;font-size:25px;line-height:1.12;letter-spacing:-.02em}
-.cuerpo .precio{font-size:30px}
-.linea{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.chapa{display:inline-flex;align-items:center;gap:6px;padding:5px 11px;border-radius:999px;font-size:12px;font-weight:700;background:#E4F1EF;color:var(--turq2)}
-.chapa.ped{background:#F7EBD2;color:#8A5A12}
-.chapa.oro{background:#F7EBD2;color:#7A5A16}
-.mods{display:flex;flex-wrap:wrap;gap:8px}
-.modb{min-height:42px;padding:0 14px;border-radius:14px;border:1px solid var(--linea);background:var(--papel);font-size:13px;font-weight:500}
-.modb[aria-pressed=true]{border-color:var(--turq);box-shadow:inset 0 0 0 1px var(--turq);color:var(--turq2);font-weight:700}
-.rot{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--suave)}
-.cuerpo .wa{width:100%}
-.dos{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.sec{display:flex;align-items:center;justify-content:center;min-height:48px;border-radius:999px;border:1px solid var(--linea);background:var(--papel);font-weight:700;font-size:13.5px;text-decoration:none;color:var(--tinta)}
-.nota{font-size:12.5px;color:var(--suave);text-align:center}
-.quien{padding:26px 20px calc(26px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:12px}
-.quien h3{font-family:'Fraunces',Georgia,serif;font-weight:500;font-size:23px}
-@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
+.velo .tope{display:flex;align-items:center;gap:12px;padding:calc(14px + env(safe-area-inset-top)) 18px 10px}
+.velo .tope b{flex:1;font-family:'Fraunces',Georgia,serif;font-weight:500;font-size:26px;letter-spacing:-.02em}
+.x{width:44px;height:44px;border-radius:999px;border:1px solid var(--linea);background:var(--papel);font-size:18px}
+.velo input{margin:0 18px;min-height:50px;padding:0 18px;border-radius:999px;border:1px solid var(--linea);background:var(--papel);font-size:15px}
+.velo .cuerpo{flex:1;overflow-y:auto;padding:14px 18px calc(24px + env(safe-area-inset-bottom))}
+.ren{display:flex;align-items:center;gap:14px;width:100%;padding:14px 4px;border:0;border-bottom:1px solid var(--linea);background:none;text-align:left}
+.ren .n{font-family:'Fraunces',Georgia,serif;font-style:italic;font-size:15px;color:var(--oro);width:26px}
+.ren .t{flex:1;font-family:'Fraunces',Georgia,serif;font-size:21px;letter-spacing:-.015em}
+.ren .c{font-size:12px;color:var(--suave)}
+.ren img{width:48px;height:48px;border-radius:12px;object-fit:cover;background:#fff}
+.ren .t2{flex:1;min-width:0}.ren .t2 b{display:block;font-weight:500;font-size:14px;line-height:1.25}.ren .t2 span{font-size:13px;color:var(--suave)}
+.hoja{position:fixed;inset:0;z-index:30;background:rgba(15,12,8,.6);display:none;align-items:flex-end;justify-content:center}
+.hoja.on{display:flex}
+.hoja>div{width:100%;max-width:480px;background:var(--crema);border-radius:28px 28px 0 0;padding:26px 20px calc(26px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:12px}
+.hoja h3{font-family:'Fraunces',Georgia,serif;font-weight:500;font-size:23px}
+.hoja .sec{min-height:48px;border-radius:999px;border:1px solid var(--linea);background:var(--papel);font-weight:700}
+.nota{position:fixed;left:50%;top:calc(64px + env(safe-area-inset-top));transform:translateX(-50%);z-index:12;padding:10px 16px;border-radius:999px;background:var(--tinta);color:#fff;font-size:13px;font-weight:500;white-space:nowrap;display:none}
+.nota.on{display:block}
+.carga{height:100dvh;display:flex;align-items:center;justify-content:center;color:#FBF3E2;background:var(--pino);font-family:'Fraunces',Georgia,serif;font-style:italic;font-size:20px;text-align:center;padding:24px}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
-<div class="ancho">
-  <header class="cab">
-    <img src="icon-192.png" alt="Logo de Pirí">
-    <div class="marca"><b id="marca">Pirí · Diseño Láser</b><span>Grabado láser personalizado · Uruguay</span></div>
-    <button class="pill" data-a="wa"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#i-wa"/></svg>Escribinos</button>
-  </header>
-  <div class="portada">
-    <p class="ceja">Catálogo <span id="anio"></span></p>
-    <h1>Regalos con <em>nombre propio.</em></h1>
-    <p>Termos, mates, vasos y detalles grabados a láser. Elegí el que te guste, escribinos y lo personalizamos para vos.</p>
-    <div class="fiestas" id="fiestas">
-      <svg class="arbol" viewBox="0 0 40 40" aria-hidden="true"><path d="M20 3l7 10h-4l7 9h-5l8 10H7l8-10h-5l7-9h-4z" fill="#F3C56B"/><rect x="17.5" y="32" width="5" height="5" rx="1" fill="#C9A45C"/></svg>
-      <div><b>Regalos para estas fiestas</b><span>Encargá con tiempo y llegá tranquilo a Navidad y Reyes.</span></div>
-    </div>
-    <div class="buscar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="q" type="search" placeholder="¿Qué estás buscando?" aria-label="Buscar en el catálogo" autocomplete="off"></div>
-  </div>
+<div class="avance" id="avance"></div>
+<div class="barra clara" id="barra">
+  <img src="icon-192.png" alt="Logo de Pirí">
+  <span class="donde" id="donde">Pirí · Diseño Láser</span>
+  <button class="ind" data-a="indice"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"/></svg>Índice</button>
 </div>
-<nav class="cats" id="cats" aria-label="Categorías"><div class="fila" id="fila"></div></nav>
-<main class="ancho">
-  <div class="aviso" id="aviso"><span>Te pasaron este producto. Acá está todo lo demás.</span><button data-a="ver-todo">Entendido</button></div>
-  <div id="lista"><section><div class="grilla"><div class="esq"></div><div class="esq"></div><div class="esq"></div><div class="esq"></div></div></section></div>
-  <div class="cierre"><h3>¿Tenés una idea a medida?</h3><p>Hacemos grabados con tu nombre, tu logo o el diseño que quieras. Contanos y lo armamos.</p><button class="wa" data-a="wa"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#i-wa"/></svg>Escribinos por WhatsApp</button></div>
-  <footer>Pirí · Diseño Láser · Precios en pesos uruguayos<span id="act"></span></footer>
-</main>
-<button class="flota" data-a="wa" aria-label="Escribir por WhatsApp"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#i-wa"/></svg></button>
-<div class="velo" id="velo" data-a="velo"><div class="ficha" id="ficha" role="dialog" aria-modal="true"></div></div>
+<div id="rev"><div class="carga">Abriendo el catálogo…</div></div>
+<div class="velo" id="velo" role="dialog" aria-modal="true" aria-label="Índice">
+  <div class="tope"><b>Índice</b><button class="x" data-a="cerrar-ind" aria-label="Cerrar">✕</button></div>
+  <input id="q" type="search" placeholder="Buscar un producto" aria-label="Buscar un producto" autocomplete="off">
+  <div class="cuerpo" id="indice"></div>
+</div>
+<div class="hoja" id="hoja" data-a="hoja"><div id="quien"></div></div>
+<div class="nota" id="nota">Te pasaron este producto · deslizá para ver más</div>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="i-wa" viewBox="0 0 24 24"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm4.5 12.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.6.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.8 11.9 11.9 0 0 0 4.6 4c1.7.7 2.3.8 3.2.7a2.7 2.7 0 0 0 1.8-1.3 2.2 2.2 0 0 0 .2-1.3c-.1-.1-.3-.2-.5-.3z"/></symbol></svg>
 <script>
-// Catálogo de Pirí Gestión. Muestra lo publicado en Mercado Libre (ml.json, que actualiza la computadora del negocio).
+// Catálogo tipo revista de Pirí Gestión. Muestra lo publicado en Mercado Libre (ml.json, que actualiza la computadora del negocio).
 const ML_URL = '/piri-stock/ml.json';
 const API = 'https://script.google.com/macros/s/AKfycbxCyZEmU8_eqwXoPPWfVz4u1X6NGV-yWTRwROb2FHJ4CwRFjvTXbIqe0Y_qQ9cz71YI/exec';
 const $ = s => document.querySelector(s);
@@ -168,56 +164,71 @@ const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&':'&am
 const pesos = n => '$ ' + String(Math.round(Number(n) || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 const plano = t => String(t || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
 const urlOk = u => /^https:\/\//.test(String(u || '')) ? String(u) : '';
+const dos = n => (n < 10 ? '0' : '') + n;
 const BASE = location.origin + location.pathname;
-let ITEMS = [], GRUPOS = [], ORDEN = [], WA = [], cat = '', abierto = null, elegido = {};
+const WA_SVG = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#i-wa"/></svg>';
+let ITEMS = [], GRUPOS = [], CATS = [], ORDEN = [], WA = [], elegido = {}, ACT = '';
 
 function agrupar() {
   const g = {};
   ITEMS.forEach(p => { const k = p.cat + '|' + p.nombre; (g[k] = g[k] || { nombre:p.nombre, cat:p.cat, items:[] }).items.push(p); });
   const pos = c => { const i = ORDEN.indexOf(c); return i < 0 ? 99 : i; };
-  GRUPOS = Object.keys(g).map(k => { const x = g[k]; x.id = x.items[0].id; x.min = Math.min.apply(null, x.items.map(i => Number(i.precio) || 0).filter(Boolean).concat([Infinity])); x.hay = x.items.some(i => i.stock > 0); return x; })
-    .sort((a, b) => (pos(a.cat) - pos(b.cat)) || a.nombre.localeCompare(b.nombre));
+  GRUPOS = Object.keys(g).map(k => { const x = g[k]; x.id = x.items[0].id; return x; }).sort((a, b) => (pos(a.cat) - pos(b.cat)) || a.nombre.localeCompare(b.nombre));
+  CATS = []; GRUPOS.forEach(x => { if (CATS.indexOf(x.cat) < 0) CATS.push(x.cat); });
+  GRUPOS.forEach((x, i) => { x.n = i + 1; });
 }
-function pintar() {
-  const cats = []; GRUPOS.forEach(g => { if (cats.indexOf(g.cat) < 0) cats.push(g.cat); });
-  $('#fila').innerHTML = [''].concat(cats).map(c => '<button class="cat" data-a="cat" data-c="' + esc(c) + '" aria-pressed="' + (c === cat) + '">' + (c ? esc(c) : 'Todo') + '</button>').join('');
-  const q = plano($('#q').value.trim());
-  const L = GRUPOS.filter(g => (!cat || g.cat === cat) && (!q || plano(g.nombre + ' ' + g.cat + ' ' + g.items.map(i => i.color).join(' ')).indexOf(q) >= 0));
-  if (!L.length) { $('#lista').innerHTML = '<div class="vacio">No encontramos eso en el catálogo.<br>Escribinos y lo hacemos a tu medida.</div>'; return; }
-  let h = '';
-  cats.forEach(c => {
-    const P = L.filter(g => g.cat === c); if (!P.length) return;
-    h += '<section id="s-' + cats.indexOf(c) + '"><div class="tit"><h2>' + esc(c) + '</h2><i></i><span>' + P.length + (P.length === 1 ? ' producto' : ' productos') + '</span></div><div class="grilla">' + P.map(tarjeta).join('') + '</div></section>';
-  });
-  $('#lista').innerHTML = h;
+function fiestas() { const d = new Date(), m = d.getMonth() + 1; return m === 11 || m === 12 || (m === 1 && d.getDate() <= 6); }
+function tapa() {
+  let ch = ''; if (fiestas()) for (let i = 0; i < 14; i++) ch += '<span class="chispa" style="left:' + (Math.random() * 96) + '%;top:' + (4 + Math.random() * 60) + '%;font-size:' + (8 + Math.random() * 10) + 'px;animation-delay:' + (-Math.random() * 3.4).toFixed(2) + 's">✦</span>';
+  return '<section class="pag tapa" data-tono="clara" data-donde="Pirí · Diseño Láser">' + ch + '<div class="sello-tapa"><img src="icon-512.png" alt=""></div><div class="dentro">'
+    + '<p class="ceja">Catálogo ' + new Date().getFullYear() + ' · Uruguay</p><h1>Regalos con <em>nombre propio.</em></h1><p>Termos, mates, vasos y detalles grabados a láser, hechos para una sola persona.</p>'
+    + '<div class="fiesta' + (fiestas() ? ' on' : '') + '"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20 3l7 10h-4l7 9h-5l8 10H7l8-10h-5l7-9h-4z" fill="currentColor"/><rect x="17.5" y="32" width="5" height="5" rx="1" fill="currentColor"/></svg>Edición fiestas · Encargá con tiempo</div>'
+    + '<button class="desliza" data-a="sig"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 14 6-6 6 6"/></svg>Deslizá para empezar</button></div></section>';
 }
-function tarjeta(g) {
-  const p = g.items.find(i => urlOk(i.fotos[0])) || g.items[0], f = urlOk(p.fotos[0]), n = g.items.length;
-  const varios = g.items.some(i => Number(i.precio) !== g.min);
-  return '<button class="prod" data-a="abrir" data-id="' + esc(g.id) + '"><div class="ft">' + (f ? '<img src="' + esc(f) + '" alt="' + esc(g.nombre) + '" loading="lazy">' : '')
-    + '<span class="sello' + (g.hay ? '' : ' ped') + '">' + (g.hay ? 'Disponible' : 'A pedido') + '</span></div>'
-    + '<div class="inf"><span class="nom">' + esc(g.nombre) + '</span><div class="pie"><span class="precio">' + (isFinite(g.min) ? (varios ? '<small style="font:500 11px DM Sans,sans-serif;color:var(--suave)">desde </small>' : '') + pesos(g.min) : 'Consultar') + '</span>' + (n > 1 ? '<span class="mod">' + n + ' modelos</span>' : '') + '</div></div></button>';
+function capitulo(c, i) {
+  const n = GRUPOS.filter(g => g.cat === c).length;
+  return '<section class="pag cap c' + (i % 4) + '" id="c-' + i + '" data-tono="clara" data-donde="' + esc(c) + '"><span class="num" aria-hidden="true">' + dos(i + 1) + '</span><div class="dentro"><p class="ceja">Capítulo ' + dos(i + 1) + '</p><h2>' + esc(c) + '</h2><p>' + n + (n === 1 ? ' producto' : ' productos') + ' · deslizá para verlos</p></div></section>';
 }
-function linkML(id) { return 'https://articulo.mercadolibre.com.uy/' + String(id).replace(/^MLU/, 'MLU-'); }
-function ficha(g, id) {
-  const p = g.items.find(i => i.id === id) || g.items.find(i => i.stock > 0) || g.items[0]; elegido[g.id] = p.id; abierto = g;
+function interior(g) {
+  const p = g.items.find(i => i.id === elegido[g.id]) || g.items.find(i => i.stock > 0) || g.items[0]; elegido[g.id] = p.id;
   const F = p.fotos.map(urlOk).filter(Boolean);
-  $('#ficha').innerHTML = '<button class="cerrar" data-a="cerrar" aria-label="Cerrar">✕</button>'
-    + '<div class="gal" id="gal">' + F.map((f, i) => '<img src="' + esc(f) + '" alt="' + esc(g.nombre) + ' — foto ' + (i + 1) + '"' + (i ? ' loading="lazy"' : '') + '>').join('') + '</div>'
-    + (F.length > 1 ? '<div class="puntos" id="puntos">' + F.map((f, i) => '<i' + (i ? '' : ' class="on"') + '></i>').join('') + '</div>' : '')
-    + '<div class="cuerpo"><div><p class="ceja">' + esc(g.cat) + '</p><h2>' + esc(g.nombre) + '</h2></div>'
-    + '<div class="linea"><span class="precio">' + (p.precio ? pesos(p.precio) : 'Consultar precio') + '</span><span class="chapa' + (p.stock > 0 ? '' : ' ped') + '">' + (p.stock > 0 ? '● Disponible' : 'A pedido') + '</span><span class="chapa oro">✦ Grabado láser</span></div>'
-    + (g.items.length > 1 ? '<div><p class="rot" style="margin-bottom:8px">Elegí el modelo</p><div class="mods">' + g.items.map(i => '<button class="modb" data-a="modelo" data-id="' + esc(i.id) + '" aria-pressed="' + (i.id === p.id) + '">' + esc(i.color || 'Único') + '</button>').join('') + '</div></div>' : '')
-    + '<button class="wa" data-a="pedir" data-id="' + esc(p.id) + '"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#i-wa"/></svg>' + (p.stock > 0 ? 'Lo quiero' : 'Consultar por este') + '</button>'
-    + '<div class="dos"><button class="sec" data-a="pasar" data-id="' + esc(p.id) + '">Compartir</button><a class="sec" href="' + esc(linkML(p.id)) + '" target="_blank" rel="noopener">Ver en Mercado Libre</a></div>'
-    + '<p class="nota">Te respondemos por WhatsApp y coordinamos el grabado y la entrega.</p></div>';
-  $('#velo').classList.add('on'); document.body.style.overflow = 'hidden';
-  history.replaceState(null, '', BASE + '?p=' + encodeURIComponent(p.id));
-  const gal = $('#gal'), pts = $('#puntos');
-  if (gal && pts) gal.addEventListener('scroll', () => { const n = Math.round(gal.scrollLeft / gal.clientWidth); Array.prototype.forEach.call(pts.children, (d, i) => d.classList.toggle('on', i === n)); }, { passive:true });
-  $('#ficha').scrollTop = 0;
+  return '<div class="foto"><div class="gal">' + F.map((f, i) => '<img src="' + esc(f) + '" alt="' + esc(g.nombre) + ' — foto ' + (i + 1) + '" loading="lazy">').join('') + '</div>'
+    + (F.length > 1 ? '<div class="puntos">' + F.map((f, i) => '<i' + (i ? '' : ' class="on"') + '></i>').join('') + '</div>' : '')
+    + '<span class="estado' + (p.stock > 0 ? '' : ' ped') + '">' + (p.stock > 0 ? '● Disponible' : 'A pedido') + '</span></div>'
+    + '<div class="texto"><div class="arr"><span class="ceja">' + esc(g.cat) + '</span><span class="cuenta">' + dos(g.n) + ' / ' + dos(GRUPOS.length) + '</span></div>'
+    + '<h3>' + esc(g.nombre) + '</h3>'
+    + '<div class="precio">' + (p.precio ? pesos(p.precio) : 'Consultar precio') + '</div>'
+    + (g.items.length > 1 ? '<div class="mods">' + g.items.map(i => '<button class="modb" data-a="modelo" data-g="' + esc(g.id) + '" data-id="' + esc(i.id) + '" aria-pressed="' + (i.id === p.id) + '">' + esc(i.color || 'Único') + '</button>').join('') + '</div>' : '')
+    + '<div class="acc"><button class="wa" data-a="pedir" data-id="' + esc(p.id) + '">' + WA_SVG + (p.stock > 0 ? 'Lo quiero' : 'Consultar') + '</button>'
+    + '<button class="red" data-a="pasar" data-id="' + esc(p.id) + '" aria-label="Compartir este producto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3m0 0L8 7m4-4 4 4M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg></button></div></div>';
 }
-function cerrar() { $('#velo').classList.remove('on'); document.body.style.overflow = ''; abierto = null; history.replaceState(null, '', BASE); }
+function armar() {
+  let h = tapa();
+  CATS.forEach((c, i) => { h += capitulo(c, i); GRUPOS.filter(g => g.cat === c).forEach(g => { h += '<section class="pag prod" id="p-' + esc(g.id) + '" data-tono="oscura" data-donde="' + esc(c) + '" data-g="' + esc(g.id) + '">' + interior(g) + '</section>'; }); });
+  h += '<section class="pag fin" data-tono="clara" data-donde="Pirí · Diseño Láser"><div><h2>¿Tenés una idea <em>a medida?</em></h2><p>Grabamos tu nombre, tu logo o el diseño que quieras. Contanos y lo armamos.</p><button class="wa" data-a="wa">' + WA_SVG + 'Escribinos por WhatsApp</button><br><button class="arriba" data-a="inicio">Volver al principio</button><small>Pirí · Diseño Láser · Precios en pesos uruguayos' + (ACT ? ' · Actualizado el ' + esc(ACT) : '') + '</small></div></section>';
+  $('#rev').innerHTML = h;
+  const ob = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting && e.intersectionRatio > .55) enPagina(e.target); }), { root:$('#rev'), threshold:[.6] });
+  document.querySelectorAll('.pag').forEach(p => ob.observe(p));
+  document.querySelectorAll('.gal').forEach(escucharGal);
+}
+function escucharGal(gal) {
+  gal.addEventListener('scroll', () => { const pts = gal.parentNode.querySelector('.puntos'); if (!pts) return; const n = Math.round(gal.scrollLeft / gal.clientWidth); Array.prototype.forEach.call(pts.children, (d, i) => d.classList.toggle('on', i === n)); }, { passive:true });
+}
+function enPagina(el) {
+  $('#barra').classList.toggle('clara', el.dataset.tono === 'clara'); $('#donde').textContent = el.dataset.donde || '';
+  const P = document.querySelectorAll('.pag'), i = Array.prototype.indexOf.call(P, el);
+  $('#avance').style.width = (P.length > 1 ? i / (P.length - 1) * 100 : 0) + '%';
+  const g = el.dataset.g; history.replaceState(null, '', g ? BASE + '?p=' + encodeURIComponent(elegido[g] || g) : BASE);
+  if (!el.classList.contains('prod') || !g || !window.__solo || (elegido[g] !== window.__solo && g !== window.__solo)) $('#nota').classList.remove('on');
+}
+function ir(sel, suave) { const el = typeof sel === 'string' ? document.getElementById(sel) : sel; if (el) $('#rev').scrollTo({ top:el.offsetTop, behavior:suave ? 'smooth' : 'auto' }); }
+
+function pintarIndice() {
+  const q = plano($('#q').value.trim());
+  if (!q) { $('#indice').innerHTML = CATS.map((c, i) => '<button class="ren" data-a="ir" data-id="c-' + i + '"><span class="n">' + dos(i + 1) + '</span><span class="t">' + esc(c) + '</span><span class="c">' + GRUPOS.filter(g => g.cat === c).length + '</span></button>').join(''); return; }
+  const L = GRUPOS.filter(g => plano(g.nombre + ' ' + g.cat + ' ' + g.items.map(i => i.color).join(' ')).indexOf(q) >= 0);
+  $('#indice').innerHTML = L.length ? L.map(g => { const f = urlOk((g.items[0].fotos || [])[0]); return '<button class="ren" data-a="ir" data-id="p-' + esc(g.id) + '">' + (f ? '<img src="' + esc(f) + '" alt="" loading="lazy">' : '') + '<span class="t2"><b>' + esc(g.nombre) + '</b><span>' + (g.items[0].precio ? pesos(g.items[0].precio) : 'Consultar') + '</span></span></button>'; }).join('') : '<p style="padding:30px 0;text-align:center;color:var(--suave)">No encontramos eso. Escribinos y lo hacemos a tu medida.</p>';
+}
 function texto(id) {
   const p = ITEMS.find(x => x.id === id);
   if (!p) return '¡Hola! Vi el catálogo de Pirí y quería hacer una consulta 😊';
@@ -227,10 +238,8 @@ function abrirWa(n, txt) { window.open('https://wa.me/' + String(n || '').replac
 function pedir(id) {
   const txt = texto(id);
   if (WA.length <= 1) return abrirWa(WA[0] ? WA[0].numero : '', txt);
-  const antes = abierto ? { g:abierto, id:elegido[abierto.id] } : null;
-  $('#ficha').innerHTML = '<div class="quien"><h3>¿A quién le escribís?</h3><p style="color:var(--suave)">Cualquiera de los dos te atiende.</p>' + WA.map((w, i) => '<button class="wa" data-a="wa-a" data-i="' + i + '"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><use href="#i-wa"/></svg>Escribirle a ' + esc(w.nombre || 'Pirí') + '</button>').join('') + '<button class="sec" data-a="' + (antes ? 'volver' : 'cerrar') + '" style="border-radius:999px">Volver</button></div>';
-  $('#ficha').dataset.txt = txt; $('#ficha').dataset.vol = antes ? antes.id : '';
-  $('#velo').classList.add('on');
+  $('#quien').innerHTML = '<h3>¿A quién le escribís?</h3><p style="color:var(--suave)">Cualquiera de los dos te atiende.</p>' + WA.map((w, i) => '<button class="wa" data-a="wa-a" data-i="' + i + '">' + WA_SVG + 'Escribirle a ' + esc(w.nombre || 'Pirí') + '</button>').join('') + '<button class="sec" data-a="cerrar-hoja">Volver</button>';
+  $('#quien').dataset.txt = txt; $('#hoja').classList.add('on');
 }
 async function pasar(id) {
   const p = ITEMS.find(x => x.id === id); if (!p) return;
@@ -240,46 +249,51 @@ async function pasar(id) {
 }
 document.addEventListener('click', e => {
   const el = e.target.closest('[data-a]'); if (!el) return; const a = el.dataset.a, d = el.dataset;
-  if (a === 'velo') { if (e.target === el) cerrar(); return; }
-  if (a === 'cat') { cat = d.c; pintar(); const y = $('#cats').getBoundingClientRect().top + window.scrollY; if (window.scrollY > y) window.scrollTo(0, y); }
-  else if (a === 'abrir') { const g = GRUPOS.find(x => x.id === d.id); if (g) ficha(g, elegido[g.id]); }
-  else if (a === 'modelo') { if (abierto) ficha(abierto, d.id); }
-  else if (a === 'cerrar') cerrar();
+  if (a === 'hoja') { if (e.target === el) el.classList.remove('on'); return; }
+  if (a === 'sig') { const P = document.querySelectorAll('.pag'); if (P[1]) ir(P[1], true); }
+  else if (a === 'inicio') ir(document.querySelector('.pag'), true);
+  else if (a === 'indice') { $('#q').value = ''; pintarIndice(); $('#velo').classList.add('on'); }
+  else if (a === 'cerrar-ind') $('#velo').classList.remove('on');
+  else if (a === 'ir') { $('#velo').classList.remove('on'); ir(d.id); }
+  else if (a === 'modelo') { const g = GRUPOS.find(x => x.id === d.g), s = el.closest('.pag'); if (g && s) { elegido[g.id] = d.id; s.innerHTML = interior(g); escucharGal(s.querySelector('.gal')); history.replaceState(null, '', BASE + '?p=' + encodeURIComponent(d.id)); } }
   else if (a === 'pedir') pedir(d.id);
   else if (a === 'wa') pedir('');
-  else if (a === 'wa-a') { const w = WA[Number(d.i)]; if (w) abrirWa(w.numero, $('#ficha').dataset.txt || texto('')); }
-  else if (a === 'volver') { const id = $('#ficha').dataset.vol, g = GRUPOS.find(x => x.items.some(i => i.id === id)); if (g) ficha(g, id); else cerrar(); }
+  else if (a === 'wa-a') { const w = WA[Number(d.i)]; $('#hoja').classList.remove('on'); if (w) abrirWa(w.numero, $('#quien').dataset.txt || texto('')); }
+  else if (a === 'cerrar-hoja') $('#hoja').classList.remove('on');
   else if (a === 'pasar') pasar(d.id);
-  else if (a === 'ver-todo') $('#aviso').classList.remove('on');
 });
-document.addEventListener('keydown', e => { if (e.key === 'Escape' && $('#velo').classList.contains('on')) cerrar(); });
-$('#q').addEventListener('input', pintar);
-new IntersectionObserver(es => $('#cats').classList.toggle('pegada', es[0].intersectionRatio < 1), { threshold:[1], rootMargin:'-1px 0px 0px 0px' }).observe($('#cats'));
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { $('#velo').classList.remove('on'); $('#hoja').classList.remove('on'); return; }
+  if (e.target.tagName === 'INPUT') return;
+  if (e.key === 'ArrowDown' || e.key === 'PageDown' || e.key === ' ') { e.preventDefault(); $('#rev').scrollBy({ top:innerHeight, behavior:'smooth' }); }
+  else if (e.key === 'ArrowUp' || e.key === 'PageUp') { e.preventDefault(); $('#rev').scrollBy({ top:-innerHeight, behavior:'smooth' }); }
+});
+$('#q').addEventListener('input', pintarIndice);
 
 function recibir(j) {
   ORDEN = j.categorias || [];
   ITEMS = (j.items || []).filter(x => x && x.id && x.nombre).map(x => ({ id:String(x.id), nombre:String(x.nombre).replace(/\s+/g, ' ').trim(), cat:String(x.cat || 'Otros'), color:String(x.color || ''), precio:Number(x.precio) || 0, stock:Number(x.stock) || 0, fotos:Array.isArray(x.fotos) ? x.fotos : [] }));
-  agrupar(); pintar();
-  if (j.actualizado) $('#act').textContent = ' · Actualizado el ' + String(j.actualizado).split('-').reverse().join('/');
+  ACT = j.actualizado ? String(j.actualizado).split('-').reverse().join('/') : '';
+  agrupar(); armar();
+}
+function irAlPedido() {
+  const solo = new URLSearchParams(location.search).get('p'); if (!solo) return;
+  const g = GRUPOS.find(x => x.items.some(i => i.id === solo)); if (!g) return;
+  window.__solo = solo; elegido[g.id] = solo; const s = document.getElementById('p-' + g.id);
+  if (s) { s.innerHTML = interior(g); escucharGal(s.querySelector('.gal')); ir(s); $('#nota').classList.add('on'); setTimeout(() => $('#nota').classList.remove('on'), 5000); }
 }
 async function cargar() {
-  try { const c = JSON.parse(localStorage.getItem('piri.gestion.cat') || 'null'); if (c && c.items) recibir(c); } catch (e) {}
+  const pedido = new URLSearchParams(location.search).get('p');
+  let pintado = false;
+  try { const c = JSON.parse(localStorage.getItem('piri.gestion.cat') || 'null'); if (c && c.items && c.items.length) { recibir(c); pintado = true; if (pedido) { history.replaceState(null, '', BASE + '?p=' + encodeURIComponent(pedido)); irAlPedido(); } } } catch (e) {}
   try { WA = JSON.parse(localStorage.getItem('piri.gestion.cat.wa') || '[]') || []; } catch (e) { WA = []; }
-  fetch(API + '?c=1').then(r => r.json()).then(j => { if (j && j.ok && Array.isArray(j.whatsapp)) { WA = j.whatsapp; try { localStorage.setItem('piri.gestion.cat.wa', JSON.stringify(WA)); } catch (e) {} } if (j && j.nombre) $('#marca').textContent = j.nombre; }).catch(() => {});
+  fetch(API + '?c=1').then(r => r.json()).then(j => { if (j && j.ok && Array.isArray(j.whatsapp)) { WA = j.whatsapp; try { localStorage.setItem('piri.gestion.cat.wa', JSON.stringify(WA)); } catch (e) {} } }).catch(() => {});
   try {
     const j = await fetch(ML_URL + '?v=' + Date.now()).then(r => r.json());
-    recibir(j); try { localStorage.setItem('piri.gestion.cat', JSON.stringify(j)); } catch (e) {}
-  } catch (e) { if (!GRUPOS.length) $('#lista').innerHTML = '<div class="vacio">No pudimos cargar el catálogo.<br>Revisá tu conexión y volvé a intentar.</div>'; }
-  const solo = new URLSearchParams(location.search).get('p');
-  if (solo) { const g = GRUPOS.find(x => x.items.some(i => i.id === solo)); if (g) { $('#aviso').classList.add('on'); ficha(g, solo); } }
+    try { localStorage.setItem('piri.gestion.cat', JSON.stringify(j)); } catch (e) {}
+    if (!pintado) { recibir(j); if (pedido) { history.replaceState(null, '', BASE + '?p=' + encodeURIComponent(pedido)); irAlPedido(); } }
+  } catch (e) { if (!pintado) $('#rev').innerHTML = '<div class="carga">No pudimos abrir el catálogo.<br>Revisá tu conexión y volvé a intentar.</div>'; }
 }
-(function () {
-  const d = new Date(), m = d.getMonth() + 1; $('#anio').textContent = d.getFullYear();
-  if (!(m === 11 || m === 12 || (m === 1 && d.getDate() <= 6))) return;
-  const f = $('#fiestas'); f.classList.add('on'); let h = '';
-  for (let i = 0; i < 9; i++) h += '<i style="left:' + (38 + Math.random() * 60) + '%;top:' + (8 + Math.random() * 78) + '%;font-size:' + (8 + Math.random() * 9) + 'px;animation-delay:' + (-Math.random() * 3).toFixed(2) + 's">✦</i>';
-  f.insertAdjacentHTML('beforeend', h);
-})();
 cargar();
 </script>
 </body>
