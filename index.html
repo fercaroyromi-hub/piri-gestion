@@ -593,25 +593,37 @@ function vCompras() {
 }
 function textoCatalogo() { return 'Pirí · Diseño Láser\nCatálogo\n\n' + DB.productos.filter(p => dispP(p) > 0).map(p => '• ' + p.nombre + ' — ' + fmt(p.precio) + '\n  Colores: ' + p.variantes.filter(v => disp(p, v) > 0).map(v => v.color).join(', ')).join('\n'); }
 function vCatalogo() {
-  if (U.real) return vCatalogoReal();
+  cargarCat(); if (U.catEstado !== 'error') return vCatalogoReal();
   return '<div><p class="ceja">Para clientes</p><h1>Catálogo</h1></div><p class="sub" style="font-size:14px">Solo aparecen los productos y colores con unidades disponibles.</p>'
     + '<div class="btns"><button class="btn" data-a="copiar-cat">' + ico(I.copiar, 18) + 'Copiar para WhatsApp</button></div>'
     + '<div class="lista">' + DB.productos.map(p => { const d = dispP(p); return '<div class="tarjeta fprod">' + fotoProd(p.variantes[0] ? p.variantes[0].color : '', p.nombre, p) + '<span class="txt2"><b>' + esc(p.nombre) + '</b><span class="sub">' + (d > 0 ? p.variantes.filter(v => disp(p, v) > 0).map(v => esc(v.color)).join(' · ') : 'Sin unidades disponibles') + '</span></span><span class="grande num">' + fmt(p.precio) + '</span></div>'; }).join('') + '</div>';
 }
-const CAT_URL = 'https://fercaroyromi-hub.github.io/piri-stock/catalogo.html';
-function idCat(p) { const L = p.variantes.filter(v => v.id && v.cat); const v = L.find(x => x.stock > 0) || L[0]; return v ? v.id : ''; }
+const CAT_URL = 'https://fercaroyromi-hub.github.io/piri-gestion/catalogo.html';
+function cargarCat() {
+  if (U.catEstado) return; U.catEstado = 'cargando';
+  fetch('/piri-stock/ml.json?v=' + Date.now()).then(r => r.json()).then(j => {
+    const g = {}, L = [];
+    (j.items || []).forEach(x => { if (!x || !x.id || !x.nombre) return; const k = x.cat + '|' + x.nombre; if (!g[k]) { g[k] = { id:String(x.id), nombre:String(x.nombre), cat:String(x.cat || ''), precio:Number(x.precio) || 0, foto:/^https:\/\//.test((x.fotos || [])[0] || '') ? x.fotos[0] : '', n:0 }; L.push(g[k]); } g[k].n++; });
+    U.cat = L; U.catEstado = 'ok'; if (U.ruta === 'catalogo') pintar();
+  }).catch(() => { U.catEstado = 'error'; if (U.ruta === 'catalogo') pintar(); });
+}
 function vCatalogoReal() {
-  const L = DB.productos.filter(p => idCat(p)), fuera = DB.productos.length - L.length;
-  return '<div><p class="ceja">Para clientes</p><h1>Catálogo</h1></div><p class="sub" style="font-size:14px">Tu catálogo con fotos, precios y pedido por WhatsApp. Pasalo entero o tocá <b>Pasar</b> para mandar un solo producto.</p>'
+  const cab = '<div><p class="ceja">Para clientes</p><h1>Catálogo</h1></div>';
+  if (U.catEstado === 'cargando') return cab + '<p class="sub">Cargando el catálogo…</p>';
+  const q = (U.catQ || '').trim().toLowerCase(), L = U.cat.filter(p => !q || (p.nombre + ' ' + p.cat).toLowerCase().indexOf(q) >= 0);
+  return cab + '<p class="sub" style="font-size:14px">Tu catálogo con fotos, precios y pedido por WhatsApp. Pasalo entero o tocá <b>Pasar</b> para mandar un solo producto.</p>'
     + '<div class="btns"><button class="btn" data-a="cat-todo">' + ico(I.copiar, 18) + 'Pasar todo</button><a class="btn sec" href="' + CAT_URL + '" target="_blank" rel="noopener">Ver catálogo</a></div>'
-    + '<div class="lista">' + L.map(p => '<div class="tarjeta fprod">' + fotoProd(p.variantes[0] ? p.variantes[0].color : '', p.nombre, p) + '<span class="txt2"><b>' + esc(p.nombre) + '</b><span class="sub">' + (p.precio ? fmt(p.precio) : 'Consultar precio') + ' · ' + (dispP(p) > 0 ? pl(p.variantes.filter(v => v.stock > 0).length, 'color disponible', 'colores disponibles') : 'Agotado') + '</span></span><button class="btn sec chico" data-a="cat-uno" data-id="' + p.id + '">Pasar</button></div>').join('') + '</div>'
-    + (fuera ? '<p class="sub" style="font-size:13px">' + pl(fuera, 'producto no está', 'productos no están') + ' en el catálogo. Se activan desde Pirí Stock.</p>' : '');
+    + '<input class="buscar" id="cat-q" type="search" placeholder="Buscar en el catálogo" aria-label="Buscar en el catálogo" value="' + esc(U.catQ || '') + '">'
+    + '<div class="lista" id="cat-lista">' + listaCat(L) + '</div>';
+}
+function listaCat(L) {
+  return L.length ? L.map(p => '<div class="tarjeta fprod"><span class="foto" aria-hidden="true">' + (p.foto ? '<img src="' + esc(p.foto) + '" alt="" loading="lazy" onerror="this.remove()">' : '') + '</span><span class="txt2"><b>' + esc(p.nombre) + '</b><span class="sub">' + (p.precio ? fmt(p.precio) : 'Consultar precio') + (p.n > 1 ? ' · ' + p.n + ' modelos' : '') + '</span></span><button class="btn sec chico" data-a="cat-uno" data-id="' + esc(p.id) + '">Pasar</button></div>').join('') : '<p class="sub">No hay productos con ese nombre.</p>';
 }
 async function compartir(txt) {
   if (navigator.share) { try { await navigator.share({ text:txt }); return; } catch (e) { if (e && e.name === 'AbortError') return; } }
   window.open('https://wa.me/?text=' + encodeURIComponent(txt), '_blank');
 }
-function pasarProd(id) { const p = P(id), c = p && idCat(p); if (!c) { toast('Ese producto no está en el catálogo.'); return; } compartir('*' + p.nombre + '*' + (p.precio ? ' — ' + fmt(p.precio) : '') + '\nPirí · Diseño Láser 👇\n' + CAT_URL + '?p=' + encodeURIComponent(c)); }
+function pasarProd(id) { const p = (U.cat || []).find(x => x.id === id); if (!p) return; compartir('*' + p.nombre + '*' + (p.precio ? ' — ' + fmt(p.precio) : '') + '\nPirí · Diseño Láser 👇\n' + CAT_URL + '?p=' + encodeURIComponent(p.id)); }
 function vMas() {
   const f = (a, ic, t, s) => '<button class="accion" data-a="' + a + '"><span class="icono i-verde">' + ico(ic, 18) + '</span><span class="txt"><b>' + t + '</b><span class="sub">' + s + '</span></span>' + ico(I.flecha, 16) + '</button>';
   return '<div><p class="ceja">Menú</p><h1>Más</h1></div>'
@@ -719,7 +731,6 @@ function abrirProd(id) {
   const ms = DB.movs.filter(m => m.pid === id).slice(-6).reverse();
   abrir('<div class="cabh"><div><p class="ceja">Producto</p><h2>' + esc(p.nombre) + '</h2></div>' + cerrarBtn() + '</div>'
     + galeria(p)
-    + (U.real && idCat(p) ? '<div class="btns"><button class="btn sec" data-a="cat-uno" data-id="' + p.id + '">' + ico(I.copiar, 18) + 'Pasar este producto a un cliente</button></div>' : '')
     + '<div class="resumen"><div><strong>' + fmt(p.precio) + '</strong><span>precio</span></div><div><strong>' + fmt(p.costo) + '</strong><span>costo promedio</span></div><div><strong>' + (p.precio ? Math.round((p.precio - p.costo) / p.precio * 100) : 0) + ' %</strong><span>margen</span></div></div>'
     + '<div class="tarjeta">' + p.variantes.map(v => { const r = reservado(p.id, v.color); return '<div class="var"><div><div class="n"><span class="punto" style="background:' + tono(v.color) + '"></span>' + esc(v.color) + ' ' + etq(estadoVar(p, v)) + '</div><div class="sub">' + v.stock + ' en mano · ' + r + ' reservadas · ' + (v.stock - r) + ' disponibles</div></div>'
       + '<div class="pasos"><button class="pm" data-a="aj" data-id="' + p.id + '" data-c="' + esc(v.color) + '" data-d="-1" aria-label="Restar una unidad de ' + esc(v.color) + '"' + (v.stock - r <= 0 ? ' disabled' : '') + '>' + ico(I.menos, 18) + '</button><output>' + v.stock + '</output><button class="pm mas" data-a="aj" data-id="' + p.id + '" data-c="' + esc(v.color) + '" data-d="1" aria-label="Sumar una unidad de ' + esc(v.color) + '">' + ico(I.mas, 18) + '</button></div></div>'; }).join('') + '</div>'
@@ -838,6 +849,7 @@ document.addEventListener('click', e => {
   }
 });
 document.addEventListener('input', e => {
+  if (e.target.id === 'cat-q') { U.catQ = e.target.value; const q = U.catQ.trim().toLowerCase(); $('#cat-lista').innerHTML = listaCat((U.cat || []).filter(p => !q || (p.nombre + ' ' + p.cat).toLowerCase().indexOf(q) >= 0)); return; }
   const t = e.target;
   if (t.id === 'qped') { U.qped = t.value; $('#lped').innerHTML = listaPedidos(); }
   else if (t.id === 'qst') { U.qst = t.value; $('#lst').innerHTML = listaStock(); }
