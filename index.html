@@ -180,6 +180,12 @@ nav.inf{position:sticky;bottom:10px;z-index:5;margin:0 12px 10px;display:grid;gr
 nav.inf a{min-height:50px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:11px;font-weight:600;color:var(--suave);text-decoration:none;border-radius:16px}
 nav.inf a[aria-current="page"]{color:var(--verde-tinta);background:var(--verde-fondo);font-weight:700}
 nav.inf a.nueva{justify-self:center;width:58px;height:58px;min-height:58px;margin-top:-26px;border-radius:999px;background:var(--acento);color:#fff;border:4px solid var(--fondo);box-shadow:0 8px 18px rgba(232,103,78,.45)}
+#candado{position:fixed;inset:0;z-index:40;background:var(--fondo);display:flex;align-items:center;justify-content:center;padding:24px}
+#candado[hidden]{display:none}
+#candado .caja{width:100%;max-width:340px;display:flex;flex-direction:column;gap:14px;text-align:center}
+#candado img{width:92px;height:92px;border-radius:24px;margin:0 auto}
+#candado input{text-align:center;font-size:24px;letter-spacing:.35em}
+#candado .olv{background:none;border:0;font-size:13px;text-decoration:underline;opacity:.7;padding:8px}
 .velo{position:fixed;inset:0;z-index:20;background:rgba(15,12,8,.6);display:flex;align-items:flex-end;justify-content:center}
 .hoja{width:100%;max-width:480px;max-height:92%;overflow-y:auto;background:var(--fondo);border-radius:26px 26px 0 0;padding:18px 16px 24px;display:flex;flex-direction:column;gap:14px}
 .hoja .cabh{display:flex;align-items:center;justify-content:space-between;gap:12px}
@@ -209,6 +215,7 @@ pre.comp{margin:0;padding:14px;background:var(--tarjeta);border:1px solid var(--
   <nav class="inf" id="nav" aria-label="Principal"></nav>
 </div>
 <div id="capa"></div>
+<div id="candado" hidden></div>
 <div id="tostada" aria-live="polite"></div>
 <script>
 'use strict';
@@ -368,6 +375,56 @@ function armarReal(jv, js) {
   const compras = (js.compras || []).slice(0, 80).reverse().map(c => { const m = mapa[c.pid]; return { id:String(c.id), fecha:diaIso(c.fecha), proveedor:String(c.nota || ''), pid:m ? m.gid : '', color:m ? m.color : String(c.producto || ''), cant:Number(c.cant) || 0, costo:Number(c.costo) || 0 }; });
   const movs = (js.movimientos || []).slice().reverse().map(m => { const x = mapa[m.pid]; return { id:String(m.id), fecha:diaIso(m.fecha), tipo:m.tipo === 'Entrada' ? 'compra' : /venta/i.test(m.tipo) ? 'venta' : 'ajuste', pid:x ? x.gid : '', color:x ? x.color : '', cant:Number(m.cant) || 0, nota:String(m.nota || m.canal || '') }; });
   return { productos:orden, ventas, compras, movs, sec:{}, sinCosto, cuando:Date.now() };
+}
+/* ============ PIN de la app ============ */
+function leerCandado() { try { const c = JSON.parse(lsGet('piri.gestion.candado') || 'null'); return c && c.s && c.h ? c : null; } catch (e) { return null; } }
+function hayCandado() { return !!leerCandado(); }
+async function huella(pin, sal) {
+  const t = sal + '|' + pin;
+  if (window.crypto && crypto.subtle) { try { const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(t)); return Array.from(new Uint8Array(b)).map(x => x.toString(16).padStart(2, '0')).join(''); } catch (e) {} }
+  let a = 0x811c9dc5, c = 0x1b873593; for (let r = 0; r < 500; r++) for (let i = 0; i < t.length; i++) { a = Math.imul(a ^ t.charCodeAt(i), 16777619); c = Math.imul(c ^ a, 2246822519) ^ (c >>> 13); } return 'x' + (a >>> 0).toString(16) + (c >>> 0).toString(16);
+}
+async function pinVale(pin) { const c = leerCandado(); return !!c && (await huella(pin, c.s)) === c.h; }
+async function ponerCandado(pin) { const sal = Math.random().toString(36).slice(2) + Date.now().toString(36); lsSet('piri.gestion.candado', JSON.stringify({ s:sal, h:await huella(pin, sal) })); }
+function pinFlojo(n) { return /^(\d)\1+$/.test(n) || '01234567890'.indexOf(n) >= 0 || '09876543210'.indexOf(n) >= 0; }
+function trabar(msg) {
+  const c = $('#candado'); c.hidden = false;
+  c.innerHTML = '<div class="caja"><img src="' + LOGO + '" alt="Logo de Pirí"><div><p class="ceja">Pirí Gestión</p><h2>Ingresá tu PIN</h2></div><div class="campo"><input id="cd-pin" type="password" inputmode="numeric" maxlength="6" autocomplete="off" aria-label="PIN de la app"></div><span class="aviso" id="cd-err"' + (msg ? '' : ' hidden') + '>' + esc(msg || '') + '</span><button class="btn" data-a="cd-entrar">Entrar</button><button class="olv" data-a="cd-olvide">Olvidé mi PIN</button></div>';
+  const i = $('#cd-pin'); if (i) i.focus();
+}
+function destrabar() { const c = $('#candado'); c.hidden = true; c.innerHTML = ''; U.fallos = 0; }
+async function entrarCandado() {
+  const i = $('#cd-pin'); if (!i) return; const p = i.value.trim(); if (!p) return;
+  if (U.espera && Date.now() < U.espera) { trabar('Demasiados intentos. Esperá ' + Math.ceil((U.espera - Date.now()) / 1000) + ' segundos.'); return; }
+  if (await pinVale(p)) { destrabar(); return; }
+  U.fallos = (U.fallos || 0) + 1; if (U.fallos >= 5) { U.espera = Date.now() + 60000; U.fallos = 0; }
+  trabar(U.espera && Date.now() < U.espera ? 'Demasiados intentos. Esperá un minuto.' : 'PIN incorrecto');
+}
+function abrirCandado(msg) {
+  const hay = hayCandado(), campo = (id, t) => '<div class="campo"><label for="' + id + '">' + t + '</label><input id="' + id + '" type="password" inputmode="numeric" maxlength="6" autocomplete="off"></div>';
+  abrir('<div class="cabh"><h2>' + (hay ? 'Cambiar PIN' : 'Poner PIN a la app') + '</h2>' + cerrarBtn() + '</div><p class="sub" style="font-size:14px">De 4 a 6 números. Es el PIN de Pirí Gestión en este celular; en otro celular lo configurás de nuevo.</p>'
+    + (hay ? campo('cd-a', 'PIN actual') : '') + campo('cd-n', 'PIN nuevo') + campo('cd-r', 'Repetí el PIN nuevo')
+    + '<span class="aviso" id="cd-msg"' + (msg ? '' : ' hidden') + '>' + esc(msg || '') + '</span><div class="btns"><button class="btn" data-a="candado-ok">Guardar PIN</button></div>');
+}
+async function guardarCandado() {
+  const err = m => { const e = $('#cd-msg'); e.textContent = m; e.hidden = false; };
+  const a = $('#cd-a') ? $('#cd-a').value.trim() : null, n = $('#cd-n').value.trim(), r = $('#cd-r').value.trim();
+  if (a !== null && !(await pinVale(a))) return err('El PIN actual no es correcto.');
+  if (!/^\d{4,6}$/.test(n)) return err('El PIN nuevo tiene que tener de 4 a 6 números.');
+  if (pinFlojo(n)) return err('Ese PIN es muy fácil de adivinar, elegí otro.');
+  if (n !== r) return err('Los dos PIN nuevos no coinciden.');
+  await ponerCandado(n); cerrar(); pintar(); toast(a !== null ? 'PIN cambiado' : 'PIN activado');
+}
+function abrirQuitarCandado(msg) {
+  abrir('<div class="cabh"><h2>Quitar PIN</h2>' + cerrarBtn() + '</div><p class="sub" style="font-size:14px">La app va a abrir sin pedir PIN.</p><div class="campo"><label for="cd-q">PIN actual</label><input id="cd-q" type="password" inputmode="numeric" maxlength="6" autocomplete="off"></div><span class="aviso" id="cd-msg"' + (msg ? '' : ' hidden') + '>' + esc(msg || '') + '</span><div class="btns"><button class="btn peligro" data-a="candado-quitar-si">Quitar PIN</button></div>');
+}
+function olvideCandado() {
+  const c = $('#candado');
+  c.innerHTML = '<div class="caja"><h2>¿Olvidaste el PIN?</h2><p class="sub" style="font-size:14px">Puedo borrar el PIN de la app. Por seguridad también se borran de este celular los PIN de Pirí Ventas y Pirí Stock, y vas a tener que escribirlos de nuevo para ver los datos reales. Tus planillas no se tocan.</p><button class="btn peligro" data-a="cd-borrar">Borrar el PIN y empezar de nuevo</button><button class="btn sec" data-a="cd-volver">Volver</button></div>';
+}
+function borrarCandado() {
+  ['piri.gestion.candado', 'piri.gestion.pins', 'piri.gestion.real'].forEach(k => { try { localStorage.removeItem(k); } catch (e) {} });
+  lsSet('piri.gestion.modo', 'prueba'); U.real = false; cargar(); deshacer = null; destrabar(); pintar(); toast('PIN borrado. Viendo datos de prueba.');
 }
 function leerPins() { let p = null; try { p = JSON.parse(lsGet('piri.gestion.pins') || 'null'); } catch (e) {} return { v:(p && p.v) || lsGet('piri.pin') || '', s:(p && p.s) || lsGet('piri.stock.pin') || '' }; }
 function abrirPins(msg) {
@@ -545,6 +602,7 @@ function vMas() {
   return '<div><p class="ceja">Menú</p><h1>Más</h1></div>'
     + '<div class="tarjeta">' + f('ir-pedidos', I.lista, 'Pedidos', 'Entregas, cobros y detalle de cada venta') + f('ir-compras', I.bolsa, 'Compras', 'Sumar mercadería y actualizar costos') + f('ir-catalogo', I.grilla, 'Catálogo', 'Lista de productos para pasar a clientes') + '</div>'
     + '<h2>Apariencia</h2><div class="seg">' + [['piri', 'Pirí'], ['noche', 'Noche'], ['clasico', 'Clásico']].map(o => '<button class="chip" data-a="piel" data-k="' + o[0] + '" aria-pressed="' + (U.piel === o[0]) + '">' + o[1] + '</button>').join('') + '</div>'
+    + '<h2>Seguridad</h2><p class="sub" style="font-size:14px">' + (hayCandado() ? 'La app pide tu PIN cada vez que la abrís.' : 'Ponele un PIN a la app: un solo PIN para entrar a todo.') + '</p><div class="btns"><button class="btn sec" data-a="candado">' + (hayCandado() ? 'Cambiar PIN' : 'Poner PIN') + '</button>' + (hayCandado() ? '<button class="btn sec" data-a="candado-quitar">Quitar PIN</button>' : '') + '</div>'
     + '<h2>Datos</h2><div class="seg"><button class="chip" data-a="modo" data-k="prueba" aria-pressed="' + !U.real + '">De prueba</button><button class="chip" data-a="modo" data-k="real" aria-pressed="' + !!U.real + '">Reales</button></div>'
     + (U.real ? '<p class="sub" style="font-size:14px">Mostrando tus planillas de Pirí Ventas y Pirí Stock, solo para leer. Última lectura: ' + horaDe(DB.cuando) + '.</p><div class="btns"><button class="btn sec" data-a="refrescar">' + ico(I.reinicio, 18) + 'Actualizar ahora</button></div>'
       : '<p class="sub" style="font-size:14px">Ahora ves ventas y stock ficticios. Lo que cargues queda guardado solo en este navegador, en este dispositivo.</p>')
@@ -702,6 +760,14 @@ document.addEventListener('click', e => {
   if (U.real && ['estado','cobrar','anular','anular-si','aj','guardar-prod','nuevo-prod','crear-prod','color-add','nueva-compra','guardar-compra','reiniciar','reiniciar-si','b-sig','b-mas','b-menos'].indexOf(a) >= 0) { toast('Los datos reales son solo para leer por ahora.'); return; }
   switch (a) {
     case 'cerrar': cerrar(); break;
+    case 'candado': abrirCandado(); break;
+    case 'candado-ok': guardarCandado(); break;
+    case 'candado-quitar': abrirQuitarCandado(); break;
+    case 'candado-quitar-si': pinVale($('#cd-q').value.trim()).then(ok => { if (!ok) { const e = $('#cd-msg'); e.textContent = 'El PIN no es correcto.'; e.hidden = false; return; } try { localStorage.removeItem('piri.gestion.candado'); } catch (e) {} cerrar(); pintar(); toast('PIN quitado'); }); break;
+    case 'cd-entrar': entrarCandado(); break;
+    case 'cd-olvide': olvideCandado(); break;
+    case 'cd-volver': trabar(); break;
+    case 'cd-borrar': borrarCandado(); break;
     case 'modo': if (d.k === 'real') conectarReal(false); else { U.real = false; lsSet('piri.gestion.modo', 'prueba'); cargar(); deshacer = null; pintar(); toast('Viendo datos de prueba'); } break;
     case 'refrescar': conectarReal(false); break;
     case 'pins-ok': { const v = $('#pin-v').value.trim(), st = $('#pin-s').value.trim(); if (!v || !st) { $('#err-pin').textContent = 'Escribí los dos PIN.'; $('#err-pin').hidden = false; break; } lsSet('piri.gestion.pins', JSON.stringify({ v:v, s:st })); cerrar(); conectarReal(false); break; }
@@ -773,9 +839,13 @@ if (['piri', 'noche', 'clasico'].indexOf(U.piel) < 0) U.piel = 'piri';
 document.documentElement.dataset.piel = U.piel;
 cargar();
 if (lsGet('piri.gestion.modo') === 'real') { try { const c = JSON.parse(lsGet('piri.gestion.real') || 'null'); if (c && c.productos && c.ventas) { DB = c; U.real = true; } } catch (e) {} }
+if (hayCandado()) trabar();
 pintar();
 if (U.real) conectarReal(true);
 if ('serviceWorker' in navigator && location.protocol === 'https:') { try { navigator.serviceWorker.register('sw.js').catch(function () {}); } catch (e) {} }
+document.addEventListener('keydown', e => { if (e.key !== 'Enter') return; if (e.target.id === 'cd-pin') entrarCandado(); else if (e.target.id === 'cd-r') guardarCandado(); });
+let seFue = 0;
+document.addEventListener('visibilitychange', () => { if (document.hidden) seFue = Date.now(); else if (seFue && Date.now() - seFue > 5 * 60000 && hayCandado() && $('#candado').hidden) { cerrar(); trabar(); } });
 </script>
 </body>
 </html>
